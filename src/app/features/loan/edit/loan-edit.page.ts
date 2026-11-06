@@ -117,6 +117,24 @@ import { LoanDetailStore } from './loan-detail.store';
       </section>
     }
   `,
+  styles: `
+    .loan-return {
+      margin-bottom: 12px;
+    }
+
+    .loan-history {
+      margin-top: 16px;
+      padding: 16px 20px;
+      background: var(--app-surface);
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: 1.1rem;
+      }
+    }
+  `,
 })
 export class LoanEditPage implements HasUnsavedChanges {
   readonly id = input<string>();

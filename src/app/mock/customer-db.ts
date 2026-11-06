@@ -1,6 +1,6 @@
 import { Customer, CustomerRow } from '../features/customer/customer.model';
 import { docApplies } from '../features/customer/form/plan/plan.calc';
-import { CRITERIA, DOCS, LoanPlan, MONTH_ROWS } from '../features/customer/form/plan/plan.model';
+import { CRITERIA, DOCS, LoanPlan, MONTH_ROWS } from '../features/customer/plan.model';
 import { PROVINCES } from '../core/master-data.service';
 
 /**

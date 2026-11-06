@@ -2,7 +2,7 @@ import { DecimalPipe } from '@angular/common';
 import { Component, input } from '@angular/core';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { ProgressBar } from 'primeng/progressbar';
-import { Customer } from './customer.model';
+import { Customer } from '../customer.model';
 
 /**
  * Ví dụ LỐI THOÁT (type `component`): khối UI đặc thù nhúng vào giữa form.
@@ -33,6 +33,36 @@ import { Customer } from './customer.model';
         <p-progressbar [value]="ratio > 100 ? 100 : ratio" [showValue]="false" />
       </div>
     </div>
+  `,
+  styles: `
+    .credit-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px 20px;
+      padding: 14px 16px;
+      background: var(--app-bg);
+      border: 1px solid var(--app-border);
+      border-radius: var(--app-radius);
+    }
+
+    .credit-summary__item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .credit-summary__bar {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    @media (max-width: 768px) {
+      .credit-summary {
+        grid-template-columns: 1fr;
+      }
+    }
   `,
 })
 export class CreditSummaryComponent {

@@ -56,13 +56,15 @@ chéo giữa các section (trả nợ hằng kỳ → DSCR, DTI, thặng dư, ch
 src/app/
 ├── core/                         # TOÀN APP: AppStore (người dùng, quyền), MasterDataService (danh mục),
 │                                 # authInterceptor, FileStorageService (cách tải tệp dùng chung)
-├── mock/                         # backend giả (bỏ khi có API)
+├── mock/                         # backend giả (bỏ khi có API): mock-api.ts (định tuyến),
+│                                 # customer-db.ts, loan-db.ts (dữ liệu mẫu)
 ├── shared/data/                  # BASE dữ liệu: withPagedList, withDetail, withSelection,
 │                                 # apiErrorInterceptor, query params ↔ URL, ui/: <app-data-table>
 ├── shared/workflow/              # BASE quy trình xử lý: defineWorkflow, withWorkflow,
-│                                 # ui/: <app-workflow-actions>, <app-workflow-history>
+│                                 # ui/: <app-workflow-actions>, <app-workflow-history>; workflow.scss
 ├── shared/dynamic-form/          # BASE form — chỉ người phụ trách base sửa
 │   ├── index.ts                  # public API: feature chỉ import từ đây
+│   ├── dynamic-form.scss         # CSS lớp df-* (nạp trong src/styles.scss)
 │   ├── dynamic-form.config.ts    # ĐĂNG KÝ tập trung type / wrapper / validator / message
 │   ├── props.ts                  # props của từng loại field (hợp đồng builder ↔ types)
 │   ├── field-utils.ts            # thao tác trên cây field (đếm lỗi, chuỗi thay đổi, field ẩn...)
@@ -77,12 +79,15 @@ src/app/
 │   ├── validation/               # validator dùng chung (vnPhone, cccd, taxCode, email, lte, dateAfter) + message
 │   └── testing/build-test-form.ts# dựng form không render để unit test
 └── features/customer/            # VÍ DỤ màn hình nghiệp vụ
+    ├── customer.model.ts         # DTO khách hàng
+    ├── plan.model.ts             # DTO + hằng số của Phương án vay (phần lớn của khách hàng)
     ├── customer.api.ts           # nơi DUY NHẤT gọi HttpClient; DTO ↔ model
     ├── customer.routes.ts
     ├── list/                     # trang danh sách + store + bộ lọc
     ├── edit/                     # trang xem / sửa + store
     ├── form/customer.form.ts     # chỉ ghép các tab
     ├── form/tab-*.ts             # mỗi tab một file
+    ├── form/credit-summary.component.ts # khối UI riêng nhúng vào form (type component)
     ├── form/plan/                # tab lớn tách theo section; plan.calc.ts = công thức (hàm thuần)
     └── form/customer.form.spec.ts
 └── features/loan/                # CHỨC NĂNG THỨ HAI — kiểm chứng base dùng lại được
@@ -99,6 +104,10 @@ Luật đặt file, kiểm được bằng mắt:
 - Trong `shared/dynamic-form/`, mỗi thư mục con là một vai trò (builder, form, types, wrappers, validation).
   File đặt ở gốc là thứ mọi vai trò cùng dùng.
 - `core/` chỉ dùng cho service toàn app. Không thư mục nào khác được đặt tên `core`.
+- Trong feature: model (`*.model.ts`) ở gốc feature; `form/` chỉ chứa khai báo field, công thức
+  (`*.calc.ts`) và component nhúng vào form.
+- CSS nằm cạnh thứ nó tạo kiểu: lớp `df-*` / `wf-*` trong file `.scss` của base; CSS riêng một màn hình
+  trong `styles` của component đó; `src/styles.scss` chỉ còn biến màu (`--app-*`) và khung app.
 
 ## Viết một form
 

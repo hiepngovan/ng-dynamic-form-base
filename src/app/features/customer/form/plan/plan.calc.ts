@@ -12,7 +12,7 @@ import {
   MemberSlot,
   MonthRow,
   Rating,
-} from './plan.model';
+} from '../../plan.model';
 
 /**
  * CÔNG THỨC của tab Phương án vay vốn — hàm thuần, không phụ thuộc Angular/Formly, test riêng

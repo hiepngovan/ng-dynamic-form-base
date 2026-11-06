@@ -1,4 +1,4 @@
-import { SelectOption } from '../../../../shared/dynamic-form';
+import { SelectOption } from '../../shared/dynamic-form';
 
 /**
  * Model của tab "Phương án vay vốn" (tab có key 'plan' → customer.plan = { ... }).

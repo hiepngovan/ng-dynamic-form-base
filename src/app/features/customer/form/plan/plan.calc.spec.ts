@@ -1,5 +1,5 @@
 import * as calc from './plan.calc';
-import { CRITERIA, DOCS } from './plan.model';
+import { CRITERIA, DOCS } from '../../plan.model';
 
 describe('Công thức Phương án vay (plan.calc)', () => {
   const loan = { amount: 120_000_000, termMonths: 12, rate: 12 };

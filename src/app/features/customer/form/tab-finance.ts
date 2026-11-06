@@ -1,6 +1,6 @@
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { FieldBuilder } from '../../../shared/dynamic-form';
-import { CreditSummaryComponent } from '../credit-summary.component';
+import { CreditSummaryComponent } from './credit-summary.component';
 import { Customer } from '../customer.model';
 import { MasterDataService } from '../../../core/master-data.service';
 

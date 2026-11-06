@@ -1,7 +1,7 @@
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { FieldBuilder } from '../../../../shared/dynamic-form';
 import * as calc from './plan.calc';
-import { LoanPlan, MONTH_ROWS, MonthRow } from './plan.model';
+import { LoanPlan, MONTH_ROWS, MonthRow } from '../../plan.model';
 
 type F = FieldBuilder<LoanPlan>;
 const notBusiness = (m: LoanPlan) => m.purpose !== 'SXKD';

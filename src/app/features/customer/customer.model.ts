@@ -1,4 +1,4 @@
-import { LoanPlan } from './form/plan/plan.model';
+import { LoanPlan } from './plan.model';
 
 export type CustomerType = 'PERSONAL' | 'COMPANY';
 

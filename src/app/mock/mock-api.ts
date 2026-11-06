@@ -12,7 +12,7 @@ import { Customer } from '../features/customer/customer.model';
 import { LOAN_WORKFLOW, LoanAction, LoanApplication, LoanRow } from '../features/loan/loan.model';
 import { availableActions, isEditable } from '../shared/workflow';
 import { FileRef } from '../shared/dynamic-form';
-import { seedCustomers, toRow } from './mock-db';
+import { seedCustomers, toRow } from './customer-db';
 import { CATEGORIES, packagesOf, productName, PRODUCTS, seedLoans } from './loan-db';
 
 /**

@@ -6,7 +6,7 @@ import { businessSections } from './plan-business';
 import { collateralSections } from './plan-collateral';
 import { householdSections } from './plan-household';
 import { loanSections } from './plan-loan';
-import { LoanPlan } from './plan.model';
+import { LoanPlan } from '../../plan.model';
 
 /**
  * Tab "Phương án vay vốn" (~320 field): ẩn/hiện theo mục đích vay, nhóm lặp cố định,

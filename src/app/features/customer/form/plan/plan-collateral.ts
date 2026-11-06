@@ -1,7 +1,7 @@
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { FieldBuilder } from '../../../../shared/dynamic-form';
 import * as calc from './plan.calc';
-import { COLLATERAL_SLOTS, CollateralSlot, LoanPlan } from './plan.model';
+import { COLLATERAL_SLOTS, CollateralSlot, LoanPlan } from '../../plan.model';
 
 type F = FieldBuilder<LoanPlan>;
 

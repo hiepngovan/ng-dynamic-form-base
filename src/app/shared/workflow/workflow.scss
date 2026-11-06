@@ -1,0 +1,49 @@
+/* CSS của base workflow (lớp wf-*). Nạp một lần trong src/styles.scss. */
+
+.wf-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wf-dialog__confirm {
+  margin: 0 0 12px;
+}
+
+.wf-history {
+  margin: 0;
+  padding: 0 0 0 20px;
+  list-style: none;
+  border-left: 2px solid var(--app-border);
+}
+
+.wf-history__item {
+  position: relative;
+  padding: 0 0 16px 4px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -27px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--app-surface);
+    border: 2px solid var(--p-primary-color);
+  }
+}
+
+.wf-history__head {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.wf-history__comment {
+  margin: 6px 0 0;
+  padding: 6px 10px;
+  background: var(--app-bg);
+  border-radius: 6px;
+}
