@@ -102,6 +102,25 @@ describe('Tab Phương án vay (cấu hình)', () => {
     expect(t.form.get('plan.firstPaymentDate')?.hasError('check0')).toBe(true);
   });
 
+  it('hồ sơ: ô Ngày nhận luôn hiện, khoá khi chưa tick, bắt buộc khi tick, bỏ tick thì xoá', () => {
+    const t = setup();
+    const date = () => t.form.get('plan.docCccdDate');
+    expect(date()).toBeTruthy();
+    expect(date()?.disabled).toBe(true);
+
+    t.userChange('docCccd', true);
+    expect(date()?.enabled).toBe(true);
+    expect(date()?.hasError('required')).toBe(true);
+
+    t.set({ 'plan.docCccdDate': new Date(2026, 10, 2) });
+    expect(date()?.valid).toBe(true);
+
+    t.userChange('docCccd', false);
+    expect(date()?.disabled).toBe(true);
+    expect(date()?.value).toBeNull();
+    expect(t.model.plan.docCccdDate).toBeNull();
+  });
+
   it('xếp hạng D → bắt buộc nhập lý do ngoại lệ', () => {
     const t = setup();
     expect(t.form.get('plan.exceptionReason')).toBeNull();

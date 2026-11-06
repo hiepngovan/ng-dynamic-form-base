@@ -29,11 +29,11 @@ describe('FieldBuilder', () => {
     expect(expr(total, 'model.total')({ model: undefined })).toBe(0);
   });
 
-  it('calc: làm tròn tiền, số không hợp lệ → null, field ẩn → không tính', () => {
+  it('calc: làm tròn tiền, không có kết quả → undefined, field ẩn → không tính', () => {
     const money = f.calc('total', 'Tổng', (m) => (m.a ?? 0) / 3);
     expect(expr(money, 'model.total')({ model: { a: 10 } })).toBe(3);
     const pct = f.calc('total', 'Tỷ lệ', (m) => (m.a ?? 0) / (m.b ?? 0), { format: 'percent' });
-    expect(expr(pct, 'model.total')({ model: { a: 1, b: 0 } })).toBeNull();
+    expect(expr(pct, 'model.total')({ model: { a: 1, b: 0 } })).toBeUndefined();
     expect(expr(money, 'model.total')({ model: { a: 10 }, hide: true })).toBeUndefined();
     expect(money.props?.readonly).toBe(true);
     expect(money.validation?.show).toBe(true);

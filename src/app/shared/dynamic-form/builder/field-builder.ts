@@ -473,11 +473,17 @@ function buildValidators<T>(
   return out;
 }
 
-/** Chuẩn hoá kết quả tính: số không hợp lệ (NaN, Infinity) → null; làm tròn theo kiểu hiển thị. */
+/**
+ * Chuẩn hoá kết quả tính: làm tròn theo kiểu hiển thị.
+ * "Chưa có kết quả" (null, NaN, Infinity) → undefined, giống field nhập để trống. KHÔNG dùng null:
+ * Formly không patch control khi cả hai giá trị đều rỗng (null vs undefined), control giữ undefined,
+ * rồi lúc field được render Formly đồng bộ ngược control → model, làm model đổi giữa lúc render
+ * (lỗi ExpressionChangedAfterItHasBeenChecked ở dev mode).
+ */
 function normalize(v: unknown, format: CalcFormat, digits: number): unknown {
-  if (v === undefined || v === null) return null;
+  if (v === undefined || v === null) return undefined;
   if (format === 'date' || format === 'text') return v;
-  if (typeof v !== 'number' || !Number.isFinite(v)) return null;
+  if (typeof v !== 'number' || !Number.isFinite(v)) return undefined;
   if (format === 'money') return Math.round(v);
   const k = 10 ** digits;
   return Math.round(v * k) / k;

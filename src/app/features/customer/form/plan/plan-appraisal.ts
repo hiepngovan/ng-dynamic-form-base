@@ -49,12 +49,20 @@ export function appraisalSections(f: F): FormlyFieldConfig[] {
     f.section('Danh mục hồ sơ', [
       ...DOCS.flatMap((d) => {
         const notApplicable = (m: LoanPlan) => !calc.docApplies(d, m.purpose);
+        const received = (m: LoanPlan) => !!m[`doc${d.code}`];
         return [
-          f.checkbox(`doc${d.code}`, d.label, { col: 3, hideIf: notApplicable }),
+          f.checkbox(`doc${d.code}`, d.label, {
+            col: 3,
+            hideIf: notApplicable,
+            // Bỏ tick → xoá ngày nhận, tránh lưu ngày của hồ sơ chưa nhận.
+            resets: [`doc${d.code}Date`],
+          }),
+          // Luôn hiện để bảng đều cột; khoá khi chưa tick, bắt buộc khi đã tick.
           f.date(`doc${d.code}Date`, 'Ngày nhận', {
             col: 3,
-            required: true,
-            hideIf: (m) => notApplicable(m) || !m[`doc${d.code}`],
+            hideIf: notApplicable,
+            disabledIf: (m) => !received(m),
+            requiredIf: received,
           }),
         ];
       }),
