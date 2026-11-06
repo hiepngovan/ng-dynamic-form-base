@@ -3,8 +3,8 @@ import { AbstractControl } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Observable, of } from 'rxjs';
 import { distinctUntilChanged, startWith, switchMap } from 'rxjs/operators';
-import { isEmpty, isHiddenField, rootOf, setSiblingValue } from '../core/field-utils';
-import { OptionsSource, SelectOption } from '../core/props';
+import { isEmpty, isHiddenField, rootOf, setSiblingValue } from '../field-utils';
+import { OptionsSource, SelectOption } from '../props';
 import { CompareFieldOptions, ValidatorName } from '../validation/validators';
 
 type FieldExpressions = NonNullable<FormlyFieldConfig['expressions']>;

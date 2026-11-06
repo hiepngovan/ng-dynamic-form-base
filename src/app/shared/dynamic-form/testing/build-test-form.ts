@@ -2,8 +2,8 @@ import { Component, inject, Injector, ViewContainerRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { UntypedFormGroup } from '@angular/forms';
 import { FormlyFieldConfig, FormlyFormBuilder, FormlyFormOptions } from '@ngx-formly/core';
-import { notifyUserChange } from '../core/field-utils';
-import { SelectOption } from '../core/props';
+import { notifyUserChange } from '../field-utils';
+import { SelectOption } from '../props';
 
 /**
  * Dựng form từ cấu hình mà KHÔNG render UI → test nhanh logic ẩn/hiện, validation, onChange.

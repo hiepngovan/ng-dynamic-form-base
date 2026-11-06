@@ -1,5 +1,5 @@
 import { Permission } from '../../core/app.store';
-import { defineWorkflow, WorkflowEvent } from '../../shared/data';
+import { defineWorkflow, WorkflowEvent } from '../../shared/workflow';
 import { FileRef } from '../../shared/dynamic-form';
 
 export type LoanStatus = 'DRAFT' | 'SUBMITTED' | 'RETURNED' | 'APPROVED' | 'REJECTED' | 'CANCELLED';

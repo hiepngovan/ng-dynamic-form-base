@@ -1,7 +1,7 @@
 import { Directive } from '@angular/core';
 import { FieldType, FieldTypeConfig } from '@ngx-formly/core';
-import { notifyUserChange } from './field-utils';
-import { DfProps } from './props';
+import { notifyUserChange } from '../field-utils';
+import { DfProps } from '../props';
 
 /**
  * Base class cho mọi field type của base project.

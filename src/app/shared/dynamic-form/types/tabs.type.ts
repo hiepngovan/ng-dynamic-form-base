@@ -3,8 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FieldType, FormlyField } from '@ngx-formly/core';
 import { Badge } from 'primeng/badge';
 import { Tab, TabList, Tabs } from 'primeng/tabs';
-import { countErrors } from '../core/field-utils';
-import { FormEvents } from '../core/form-events';
+import { countErrors } from '../field-utils';
+import { FormEvents } from '../form/form-events';
 
 /**
  * Tabs với LAZY RENDER + RENDER THEO LÔ.

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormlyAttributes } from '@ngx-formly/core';
 import { InputText } from 'primeng/inputtext';
-import { DfFieldType } from '../core/df-field-type';
+import { DfFieldType } from './df-field-type';
 
 @Component({
   selector: 'df-input',

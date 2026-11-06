@@ -1,4 +1,4 @@
-import { Severity } from './models';
+import { Severity } from '../data';
 
 export interface WorkflowState {
   label: string;

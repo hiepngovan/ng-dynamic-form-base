@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FieldWrapper, FormlyFieldConfig, FormlyValidationMessage } from '@ngx-formly/core';
 import { Tooltip } from 'primeng/tooltip';
-import { DfProps } from '../core/props';
+import { DfProps } from '../props';
 
 /**
  * Wrapper mặc định của mọi field: label, dấu *, tooltip, lỗi, gợi ý.

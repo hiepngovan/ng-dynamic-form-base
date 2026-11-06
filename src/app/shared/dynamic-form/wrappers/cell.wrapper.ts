@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FieldWrapper, FormlyFieldConfig, FormlyValidationMessage } from '@ngx-formly/core';
-import { DfProps } from '../core/props';
+import { DfProps } from '../props';
 
 /** Wrapper cho ô trong bảng (type `table`): không có label (label nằm ở header), chỉ hiện lỗi. */
 @Component({

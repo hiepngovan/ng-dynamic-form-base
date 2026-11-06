@@ -1,6 +1,6 @@
 import { AbstractControl, ValidationErrors, Validators } from '@angular/forms';
 import { ConfigOption, FormlyFieldConfig } from '@ngx-formly/core';
-import { isEmpty } from '../core/field-utils';
+import { isEmpty } from '../field-utils';
 
 /** Tên các validator đã đăng ký — builder dùng type này để bắt lỗi gõ sai tên khi compile. */
 export type ValidatorName = 'vnPhone' | 'cccd' | 'taxCode' | 'email' | 'lte' | 'dateAfter';

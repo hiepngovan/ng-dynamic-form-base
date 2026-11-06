@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { AutoComplete } from 'primeng/autocomplete';
 import { EMPTY, Observable, of, Subject } from 'rxjs';
 import { catchError, distinctUntilChanged, startWith, switchMap } from 'rxjs/operators';
-import { DfFieldType } from '../core/df-field-type';
-import { isEmpty } from '../core/field-utils';
-import { LookupProps, SelectOption } from '../core/props';
+import { DfFieldType } from './df-field-type';
+import { isEmpty } from '../field-utils';
+import { LookupProps, SelectOption } from '../props';
 
 /**
  * Chọn từ danh sách LỚN trên server: gõ từ khoá → props.search(query) → chọn một dòng.

@@ -58,7 +58,7 @@ module.exports = defineConfig([
           patterns: [
             {
               group: ['**/shared/*/**'],
-              message: 'Chỉ import base qua public API: shared/dynamic-form hoặc shared/data.',
+              message: 'Chỉ import base qua public API: shared/dynamic-form, shared/data hoặc shared/workflow.',
             },
           ],
         },

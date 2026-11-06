@@ -2,8 +2,8 @@ import { DecimalPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { InputNumber } from 'primeng/inputnumber';
-import { DfFieldType } from '../core/df-field-type';
-import { NumberProps } from '../core/props';
+import { DfFieldType } from './df-field-type';
+import { NumberProps } from '../props';
 
 /**
  * Dùng cho cả `number` và `money` (money = extends number, mode currency — xem dynamic-form.config.ts).

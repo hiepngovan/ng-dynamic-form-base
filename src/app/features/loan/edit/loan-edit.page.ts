@@ -8,15 +8,14 @@ import { ProgressBar } from 'primeng/progressbar';
 import { Tag } from 'primeng/tag';
 import { AppStore, Permission } from '../../../core/app.store';
 import { MasterDataService } from '../../../core/master-data.service';
+import { ApiError, isApiError } from '../../../shared/data';
+import { AppFormComponent, HasUnsavedChanges } from '../../../shared/dynamic-form';
 import {
-  ApiError,
-  isApiError,
   isEditable,
   WorkflowActEvent,
   WorkflowActionsComponent,
   WorkflowHistoryComponent,
-} from '../../../shared/data';
-import { AppFormComponent, HasUnsavedChanges } from '../../../shared/dynamic-form';
+} from '../../../shared/workflow';
 import { buildLoanForm } from '../form/loan.form';
 import { LoanApi } from '../loan.api';
 import { LOAN_WORKFLOW, LoanAction, LoanApplication } from '../loan.model';

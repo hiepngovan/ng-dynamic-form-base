@@ -10,9 +10,9 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FieldType, FormlyField } from '@ngx-formly/core';
-import { countErrors, markTouched } from '../core/field-utils';
-import { focusFirstError } from '../core/focus-error';
-import { FormEvents } from '../core/form-events';
+import { countErrors, markTouched } from '../field-utils';
+import { focusFirstError } from '../form/focus-error';
+import { FormEvents } from '../form/form-events';
 
 /**
  * Wizard nhiều bước. Cấu hình qua builder: f.steps(f.step('Bước 1', [...]), f.step(...)).

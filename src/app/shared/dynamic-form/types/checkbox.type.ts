@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Checkbox } from 'primeng/checkbox';
-import { DfFieldType } from '../core/df-field-type';
-import { CheckboxProps } from '../core/props';
+import { DfFieldType } from './df-field-type';
+import { CheckboxProps } from '../props';
 
 @Component({
   selector: 'df-checkbox',

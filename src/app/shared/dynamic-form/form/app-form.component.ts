@@ -17,8 +17,8 @@ import { FormlyFieldConfig, FormlyForm, FormlyFormOptions } from '@ngx-formly/co
 import { Button } from 'primeng/button';
 import { Message } from 'primeng/message';
 import { debounceTime } from 'rxjs/operators';
-import { focusFirstError } from '../core/focus-error';
-import { FormEvents, StepMode } from '../core/form-events';
+import { focusFirstError } from './focus-error';
+import { FormEvents, StepMode } from './form-events';
 import { clearDraft, Draft, readDraft, writeDraft } from './form-draft';
 
 /** Thời gian chờ sau lần gõ cuối trước khi lưu nháp. */

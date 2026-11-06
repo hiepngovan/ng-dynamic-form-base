@@ -3,9 +3,9 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { Button } from 'primeng/button';
 import { ProgressBar } from 'primeng/progressbar';
 import { Subscription } from 'rxjs';
-import { DfFieldType } from '../core/df-field-type';
-import { DF_FILE_STORAGE } from '../core/file-storage';
-import { FileProps, FileRef } from '../core/props';
+import { DfFieldType } from './df-field-type';
+import { DF_FILE_STORAGE } from './file-storage';
+import { FileProps, FileRef } from '../props';
 
 interface Upload {
   key: number;

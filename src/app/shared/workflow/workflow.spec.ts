@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { signalStore } from '@ngrx/signals';
 import { of, throwError } from 'rxjs';
-import { withDetail } from './with-detail';
+import { withDetail } from '../data';
 import { withWorkflow } from './with-workflow';
 import { availableActions, defineWorkflow, isEditable } from './workflow';
 

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormlyAttributes } from '@ngx-formly/core';
 import { Textarea } from 'primeng/textarea';
-import { DfFieldType } from '../core/df-field-type';
+import { DfFieldType } from './df-field-type';
 
 @Component({
   selector: 'df-textarea',

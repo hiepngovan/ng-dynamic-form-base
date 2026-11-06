@@ -2,9 +2,9 @@ import { AsyncPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RadioButton } from 'primeng/radiobutton';
-import { DfFieldType } from '../core/df-field-type';
-import { labelOf, OptionsPipe } from '../core/options.pipe';
-import { SelectProps } from '../core/props';
+import { DfFieldType } from './df-field-type';
+import { labelOf, OptionsPipe } from './options.pipe';
+import { SelectProps } from '../props';
 
 @Component({
   selector: 'df-radio',

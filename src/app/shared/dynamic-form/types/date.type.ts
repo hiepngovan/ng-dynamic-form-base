@@ -5,7 +5,7 @@ import { DatePicker } from 'primeng/datepicker';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
-import { DfFieldType } from '../core/df-field-type';
+import { DfFieldType } from './df-field-type';
 
 /**
  * Ngày. TẠO p-datepicker KHI CẦN: mỗi p-datepicker mất ~7 ms để khởi tạo (tab có 20 ô ngày

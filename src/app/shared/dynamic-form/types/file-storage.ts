@@ -1,6 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
-import { FileRef } from './props';
+import { FileRef } from '../props';
 
 /** Tiến trình tải một tệp: các mốc phần trăm, kết thúc bằng tệp đã lưu. */
 export type UploadEvent = { type: 'progress'; percent: number } | { type: 'done'; file: FileRef };

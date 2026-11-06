@@ -1,9 +1,7 @@
 import { updateState } from '@angular-architects/ngrx-toolkit';
 import { signalStoreFeature, type, withMethods, withState } from '@ngrx/signals';
 import { firstValueFrom, Observable } from 'rxjs';
-import { toApiError } from './api-error.interceptor';
-import { isApiError } from './models';
-import { DetailState } from './with-detail';
+import { DetailState, isApiError, toApiError } from '../data';
 
 export interface WorkflowConfig<T, ID> {
   /** Trả về hàm gọi API chuyển trạng thái. Server trả về bản ghi sau khi chuyển. */

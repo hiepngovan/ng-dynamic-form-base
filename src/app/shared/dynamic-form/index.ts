@@ -12,10 +12,10 @@ export type {
   LookupOptions,
 } from './builder/field-builder';
 export { AppFormComponent } from './form/app-form.component';
-export { unsavedChangesGuard } from './guards/unsaved-changes.guard';
-export type { HasUnsavedChanges } from './guards/unsaved-changes.guard';
-export type { FileRef, SelectOption } from './core/props';
-export { DF_FILE_STORAGE } from './core/file-storage';
-export type { FileStorage, UploadEvent } from './core/file-storage';
-export type { StepMode } from './core/form-events';
+export { unsavedChangesGuard } from './form/unsaved-changes.guard';
+export type { HasUnsavedChanges } from './form/unsaved-changes.guard';
+export type { FileRef, SelectOption } from './props';
+export { DF_FILE_STORAGE } from './types/file-storage';
+export type { FileStorage, UploadEvent } from './types/file-storage';
+export type { StepMode } from './form/form-events';
 export { clearAllDrafts } from './form/form-draft';

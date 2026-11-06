@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { signalStore } from '@ngrx/signals';
-import { withDetail, withStoreDevtools, withWorkflow } from '../../../shared/data';
+import { withDetail, withStoreDevtools } from '../../../shared/data';
+import { withWorkflow } from '../../../shared/workflow';
 import { LoanApi } from '../loan.api';
 import { LoanAction, LoanApplication } from '../loan.model';
 

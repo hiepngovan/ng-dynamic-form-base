@@ -2,9 +2,9 @@ import { AsyncPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Select } from 'primeng/select';
-import { DfFieldType } from '../core/df-field-type';
-import { labelOf, optionOf, OptionsPipe } from '../core/options.pipe';
-import { SelectProps } from '../core/props';
+import { DfFieldType } from './df-field-type';
+import { labelOf, optionOf, OptionsPipe } from './options.pipe';
+import { SelectProps } from '../props';
 
 /**
  * Select dùng chung. props.options nhận mảng hoặc Observable (API).

@@ -1,6 +1,6 @@
 import { Customer } from '../features/customer/customer.model';
 import { LoanApplication, LoanPackage, LoanStatus } from '../features/loan/loan.model';
-import { WorkflowEvent } from '../shared/data';
+import { WorkflowEvent } from '../shared/workflow';
 import { FileRef, SelectOption } from '../shared/dynamic-form';
 
 /** DỮ LIỆU GIẢ: danh mục sản phẩm vay + hồ sơ vay mẫu (chỉ dùng cho mock backend). */

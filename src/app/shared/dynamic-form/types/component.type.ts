@@ -1,7 +1,7 @@
 import { NgComponentOutlet } from '@angular/common';
 import { Component } from '@angular/core';
-import { DfFieldType } from '../core/df-field-type';
-import { ComponentProps } from '../core/props';
+import { DfFieldType } from './df-field-type';
+import { ComponentProps } from '../props';
 
 /**
  * LỐI THOÁT: nhúng một component tự viết vào giữa form (khối UI đặc thù).

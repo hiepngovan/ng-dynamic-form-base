@@ -7,8 +7,8 @@ import {
   FormlyFieldConfig,
 } from '@ngx-formly/core';
 import { Button } from 'primeng/button';
-import { FormEvents } from '../core/form-events';
-import { TableProps } from '../core/props';
+import { FormEvents } from '../form/form-events';
+import { TableProps } from '../props';
 
 /**
  * Danh sách dòng dạng bảng (FormArray). Cột lấy từ fieldArray.fieldGroup.
