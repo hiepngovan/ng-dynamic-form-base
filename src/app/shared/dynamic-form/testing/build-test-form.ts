@@ -41,12 +41,31 @@ export function buildTestForm<T extends object>(
       for (const [k, v] of Object.entries(patch)) form.get(k)?.setValue(v);
       options.checkExpressions?.(root);
     },
+    /**
+     * Gán giá trị theo đường dẫn (vd 'plan.amount', 'plan.months.0.revenue') cho cả model lẫn
+     * control, rồi tính lại expressions. Truyền object để gán nhiều giá trị một lần.
+     */
+    set(values: Record<string, unknown>) {
+      for (const [path, value] of Object.entries(values)) {
+        const parts = path.split('.');
+        const last = parts.pop()!;
+        let m = model as Record<string, any>;
+        for (const p of parts) m = m[p] ??= {};
+        m[last] = value;
+        form.get(path)?.setValue(value);
+      }
+      options.checkExpressions?.(root);
+    },
+    /** Giá trị hiện tại của control theo đường dẫn. */
+    value(path: string): any {
+      return form.get(path)?.value;
+    },
     /** Mô phỏng người dùng đổi giá trị trên UI: gán giá trị + gọi props.change như type thật. */
     userChange(key: string, value: unknown) {
       const field = find(key);
       if (!field) throw new Error(`Không tìm thấy field ${key}`);
       field.formControl?.setValue(value);
-      (model as Record<string, unknown>)[key] = value;
+      (field.model as Record<string, unknown>)[key] = value;
       field.props?.change?.(field, undefined);
       options.checkExpressions?.(root);
     },

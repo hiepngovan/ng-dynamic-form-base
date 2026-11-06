@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable, of, throwError, timer } from 'rxjs';
 import { delay, mergeMap } from 'rxjs/operators';
 import { Customer } from './customer.model';
+import { docApplies } from './form/plan/plan.calc';
+import { CRITERIA, DOCS, LoanPlan, MONTH_ROWS } from './form/plan/plan.model';
 
 export interface ApiValidationError {
   status: 400;
@@ -83,5 +85,92 @@ function sampleCustomer(): Partial<Customer> {
       },
     ],
     extra,
+    plan: samplePlan(),
+  };
+}
+
+/** Phương án vay SXKD đầy đủ: hiện ~280 field trên tab Phương án vay. */
+function samplePlan(): Partial<LoanPlan> {
+  const docDate = new Date(2026, 10, 2);
+  const docs = Object.fromEntries(
+    DOCS.filter((d) => docApplies(d, 'SXKD')).flatMap((d) => [
+      [`doc${d.code}`, true],
+      [`doc${d.code}Date`, docDate],
+    ]),
+  );
+  const scores = Object.fromEntries(
+    CRITERIA.map((c, i) => [`score${c.code}`, i % 4 === 3 ? 5 : 10]),
+  );
+  return {
+    purpose: 'SXKD',
+    amount: 2_000_000_000,
+    termMonths: 60,
+    rate: 9.5,
+    method: 'ANNUITY',
+    hasGrace: true,
+    graceMonths: 6,
+    disburseDate: new Date(2026, 11, 1),
+    firstPaymentDate: new Date(2027, 0, 1),
+    bizName: 'Cửa hàng vật liệu xây dựng An Phát',
+    bizType: 'RETAIL',
+    bizYears: 8,
+    bizEmployees: 12,
+    bizMarket: 'Hà Nội và các tỉnh lân cận',
+    bizProducts: 'Xi măng, sắt thép, gạch ốp lát',
+    months: MONTH_ROWS.map((r, i) => {
+      const revenue = 800_000_000 + i * 30_000_000;
+      return { ...r, revenue, cogs: Math.round(revenue * 0.68), opex: 120_000_000 };
+    }),
+    collateralCount: 2,
+    c1Type: 'BDS',
+    c1Desc: 'Nhà 4 tầng số 12 Tràng Tiền, Hoàn Kiếm',
+    c1Value: 2_500_000_000,
+    c1Ltv: 70,
+    c1Owner: 'SELF',
+    c1CertNo: 'CS 123456',
+    c2Type: 'XE',
+    c2Desc: 'Xe tải Hino 8 tấn, 2023',
+    c2Value: 800_000_000,
+    c2Ltv: 60,
+    c2Owner: 'THIRD',
+    c2OwnerName: 'Nguyễn Thị Hoa',
+    c2OwnerRelation: 'SPOUSE',
+    memberCount: 2,
+    h1Name: 'Nguyễn Văn An',
+    h1Relation: 'SELF',
+    h1Job: 'BUSINESS',
+    h1Income: 30_000_000,
+    h1HasOther: false,
+    h2Name: 'Nguyễn Thị Hoa',
+    h2Relation: 'SPOUSE',
+    h2Job: 'SALARY',
+    h2Employer: 'Công ty CP ABC',
+    h2Income: 18_000_000,
+    h2HasOther: true,
+    h2OtherIncome: 5_000_000,
+    h2OtherSource: 'Cho thuê nhà',
+    expFood: 12_000_000,
+    expUtilities: 3_000_000,
+    expEducation: 5_000_000,
+    expHealth: 1_000_000,
+    expTransport: 2_000_000,
+    expInsurance: 1_000_000,
+    expOtherLoans: 8_000_000,
+    expOther: 2_000_000,
+    asCash: 150_000_000,
+    asDeposit: 400_000_000,
+    asReceivable: 600_000_000,
+    asInventory: 1_200_000_000,
+    asVehicle: 800_000_000,
+    asRealEstate: 2_500_000_000,
+    liShort: 500_000_000,
+    liPayable: 300_000_000,
+    ...scores,
+    ...docs,
+    recommendAmount: 2_000_000_000,
+    recommendTerm: 60,
+    decision: 'CONDITIONAL',
+    conditions: 'Bổ sung hợp đồng bảo hiểm tài sản trước khi giải ngân',
+    opinion: 'Phương án khả thi, dòng tiền ổn định, tài sản bảo đảm đủ điều kiện.',
   };
 }

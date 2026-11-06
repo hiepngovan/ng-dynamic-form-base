@@ -18,6 +18,8 @@ export type OptionsSource = SelectOption[] | Observable<SelectOption[]>;
 export interface DfProps extends FormlyFieldProps {
   /** Icon (i) cạnh label, hover để xem giải thích. */
   tooltip?: string;
+  /** Field tính toán (FieldBuilder.calc): chỉ hiển thị, có kiểu riêng (ô kết quả). */
+  calc?: boolean;
 }
 
 export interface SelectProps extends DfProps {
@@ -42,4 +44,9 @@ export interface CheckboxProps extends DfProps {
 export interface ComponentProps extends DfProps {
   /** Component nhúng vào form. Component phải có input `field`. */
   component?: Type<unknown>;
+}
+
+export interface TableProps extends DfProps {
+  /** Bảng cố định số dòng (vd 12 tháng): ẩn nút thêm / xoá dòng. */
+  fixed?: boolean;
 }

@@ -23,6 +23,10 @@ const INVALID_SELECTOR = [
   `textarea${INVALID}`,
   `${INVALID} input:not([type=hidden])`,
   `${INVALID} [role=combobox]`,
+  // Ô nhập không gắn trực tiếp formControl (vd ô ngày chưa tạo p-datepicker).
+  '.df-field--error input:not([type=hidden])',
+  // Field chỉ hiển thị (field tính toán) đang lỗi: không có input, chỉ cuộn tới.
+  '.df-field--error .df-readonly',
 ].join(', ');
 
 /**

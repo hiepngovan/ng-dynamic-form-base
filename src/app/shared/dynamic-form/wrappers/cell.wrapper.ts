@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
-import { FieldWrapper, FormlyValidationMessage } from '@ngx-formly/core';
+import { FieldWrapper, FormlyFieldConfig, FormlyValidationMessage } from '@ngx-formly/core';
+import { DfProps } from '../core/props';
 
 /** Wrapper cho ô trong bảng (type `table`): không có label (label nằm ở header), chỉ hiện lỗi. */
 @Component({
   selector: 'df-cell',
   imports: [FormlyValidationMessage],
   template: `
-    <div class="df-cell" [class.df-field--error]="showError">
+    <div class="df-cell" [class.df-field--error]="showError" [class.df-field--calc]="props.calc">
       <ng-container #fieldComponent />
       @if (showError) {
         <small class="df-field__error" role="alert"
@@ -16,4 +17,4 @@ import { FieldWrapper, FormlyValidationMessage } from '@ngx-formly/core';
     </div>
   `,
 })
-export class CellWrapper extends FieldWrapper {}
+export class CellWrapper extends FieldWrapper<FormlyFieldConfig<DfProps>> {}

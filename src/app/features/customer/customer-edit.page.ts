@@ -27,6 +27,7 @@ import { MasterDataService } from './master-data.service';
         <p class="muted">
           PoC dynamic form · Angular 21 · Formly v10 · PrimeNG 21
           <p-tag [value]="fieldCount + ' field'" severity="info" />
+          <p-tag [value]="'Tab Phương án vay: ' + planFieldCount + ' field'" severity="info" />
           <p-tag [value]="'Dựng form: ' + renderMs() + ' ms'" severity="secondary" />
         </p>
       </div>
@@ -91,6 +92,9 @@ export class CustomerEditPage implements HasUnsavedChanges {
   /** Tạo cấu hình MỘT LẦN (không gọi hàm build trong template). */
   readonly fields = buildCustomerForm(this.md);
   readonly fieldCount = countInputFields(this.fields);
+  readonly planFieldCount = countInputFields(
+    this.fields[0].fieldGroup!.find((t) => t.key === 'plan')!.fieldGroup!,
+  );
   readonly model: Partial<Customer> = {};
 
   readonly readonly = signal(false);

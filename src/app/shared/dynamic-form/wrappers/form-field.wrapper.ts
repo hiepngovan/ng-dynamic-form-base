@@ -11,11 +11,11 @@ import { DfProps } from '../core/props';
   selector: 'df-form-field',
   imports: [FormlyValidationMessage, Tooltip],
   template: `
-    <div class="df-field" [class.df-field--error]="showError">
+    <div class="df-field" [class.df-field--error]="showError" [class.df-field--calc]="props.calc">
       @if (props.label) {
         <label class="df-field__label" [attr.for]="id">
           {{ props.label }}
-          @if (props.required && !formState?.readonly) {
+          @if (props.required && !formState?.readonly && !props.readonly) {
             <span class="df-field__req" aria-hidden="true">*</span>
           }
           @if (props.tooltip) {

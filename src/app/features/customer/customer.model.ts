@@ -1,3 +1,5 @@
+import { LoanPlan } from './form/plan/plan.model';
+
 export type CustomerType = 'PERSONAL' | 'COMPANY';
 
 export interface Contact {
@@ -67,6 +69,9 @@ export interface Customer {
   vatRegistered: boolean;
   invoiceEmail: string | null;
   invoiceAddress: string | null;
+
+  // ── Tab Phương án vay (tab CÓ key → model.plan = { ... })
+  plan: Partial<LoanPlan>;
 
   // ── Tab Người liên hệ
   contacts: Contact[];

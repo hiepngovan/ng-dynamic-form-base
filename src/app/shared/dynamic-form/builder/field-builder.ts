@@ -3,16 +3,27 @@ import { AbstractControl } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Observable, of } from 'rxjs';
 import { distinctUntilChanged, startWith, switchMap } from 'rxjs/operators';
-import { isEmpty, rootOf, setSiblingValue } from '../core/field-utils';
+import { isEmpty, isHiddenField, rootOf, setSiblingValue } from '../core/field-utils';
 import { OptionsSource, SelectOption } from '../core/props';
 import { CompareFieldOptions, ValidatorName } from '../validation/validators';
 
 type FieldExpressions = NonNullable<FormlyFieldConfig['expressions']>;
+type FieldValidators = NonNullable<FormlyFieldConfig['validators']>;
 
 /** Key hợp lệ của model T — gõ sai tên field sẽ báo lỗi khi compile. */
 export type Key<T> = Extract<keyof T, string>;
 export type ColSpan = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 export type ValidatorRef = ValidatorName | { name: ValidatorName; options: CompareFieldOptions };
+
+/**
+ * Quy tắc kiểm tra riêng của một field (không cần đăng ký validator dùng chung).
+ * `test` trả về true = hợp lệ. Bỏ qua khi field rỗng (kết hợp `required` nếu cần bắt buộc).
+ * Phụ thuộc field khác → khai báo `revalidates` ở field kia để kiểm tra lại khi nó đổi.
+ */
+export interface CheckRule<T> {
+  test: (value: any, model: T) => boolean;
+  message: string;
+}
 
 export interface ChangeContext<T> {
   /** Giá trị mới của field vừa đổi */
@@ -41,6 +52,12 @@ export interface FieldOptions<T> {
   max?: number;
   pattern?: string | RegExp;
   validators?: ValidatorRef[];
+  /** Quy tắc kiểm tra riêng của field này, xem CheckRule. */
+  check?: CheckRule<T> | CheckRule<T>[];
+  /** Thay message mặc định cho field này, vd { min: 'Tỷ lệ bảo đảm phải từ 100% trở lên' }. */
+  messages?: Record<string, string>;
+  /** Chỉ hiển thị, không cho nhập. */
+  readonly?: boolean;
 
   /** Bắt buộc theo điều kiện */
   requiredIf?: (model: T) => boolean;
@@ -85,6 +102,27 @@ export interface SelectOptions<T> extends FieldOptions<T> {
 export interface LayoutOptions<T> {
   col?: ColSpan;
   hideIf?: (model: T) => boolean;
+}
+
+export interface TableOptions<T, R> extends LayoutOptions<T> {
+  /**
+   * Bảng cố định số dòng (vd 12 tháng): tạo sẵn các dòng này, ẩn nút thêm / xoá.
+   * Mỗi lần dựng (hoặc hiện lại sau khi ẩn) dùng một bản sao mới.
+   */
+  fixedRows?: Partial<R>[];
+}
+
+export type CalcFormat = 'money' | 'number' | 'percent' | 'date' | 'text';
+
+export interface CalcOptions<T> extends Pick<
+  FieldOptions<T>,
+  'col' | 'description' | 'tooltip' | 'min' | 'max' | 'check' | 'messages' | 'hideIf' | 'extra'
+> {
+  /** Kiểu hiển thị kết quả. Mặc định 'money' (làm tròn đến đồng). */
+  format?: CalcFormat;
+  suffix?: string;
+  /** Số chữ số thập phân khi làm tròn (number / percent). Mặc định 2. */
+  digits?: number;
 }
 
 /**
@@ -181,6 +219,46 @@ export class FieldBuilder<T> {
     return this.make('radio', key, label, o, { options });
   }
 
+  /**
+   * Field TÍNH TOÁN: giá trị = compute(model), tự tính lại mỗi khi model đổi, chỉ hiển thị.
+   * Giá trị được ghi vào cả model lẫn control → có trong dữ liệu submit, có thể gắn validator
+   * (min / max / check) và lỗi hiện ngay khi kết quả không đạt.
+   *
+   * Quy ước: compute là HÀM THUẦN, tính từ field nhập (không đọc kết quả của field calc khác,
+   * vì thứ tự tính không được đảm bảo). Công thức đặt trong file *.calc.ts riêng và có unit test.
+   */
+  calc(
+    key: Key<T>,
+    label: string,
+    compute: (model: T) => unknown,
+    o: CalcOptions<T> = {},
+  ): FormlyFieldConfig {
+    const { format = 'money', suffix, digits = 2, ...rest } = o;
+    const type = format === 'text' ? 'input' : format === 'percent' ? 'number' : format;
+    const typeProps =
+      format === 'percent'
+        ? { suffix: suffix ?? ' %', maxFractionDigits: digits }
+        : format === 'number'
+          ? { suffix, maxFractionDigits: digits }
+          : {};
+    const field = this.make(
+      type,
+      key,
+      label,
+      { ...rest, readonly: true },
+      { ...typeProps, calc: true },
+    );
+    field.expressions = {
+      ...field.expressions,
+      // Field (hoặc section chứa nó) đang ẩn thì không tính, để giá trị đã bị xoá không quay lại.
+      [`model.${key}`]: (f) =>
+        isHiddenField(f) ? undefined : normalize(compute(modelOf<T>(f)), format, digits),
+    };
+    // Kết quả tính không do người dùng "chạm" vào → hiện lỗi ngay, không chờ touched / submit.
+    field.validation = { ...field.validation, show: true };
+    return field;
+  }
+
   checkbox(key: Key<T>, label: string, o: FieldOptions<T> = {}): FormlyFieldConfig {
     // Label nằm cạnh ô tick; wrapper chừa dòng label trống để thẳng hàng với field bên cạnh.
     const field = this.make(
@@ -204,7 +282,9 @@ export class FieldBuilder<T> {
       fieldGroupClassName: 'df-grid',
       props: { label: title },
       fieldGroup: fields,
-      ...(o.hideIf ? { expressions: { hide: (f: FormlyFieldConfig) => o.hideIf!(f.model) } } : {}),
+      ...(o.hideIf
+        ? { expressions: { hide: (f: FormlyFieldConfig) => o.hideIf!(modelOf<T>(f)) } }
+        : {}),
     };
   }
 
@@ -230,7 +310,7 @@ export class FieldBuilder<T> {
   table<R>(
     key: Key<T>,
     columns: (c: FieldBuilder<R>) => FormlyFieldConfig[],
-    o: LayoutOptions<T> = {},
+    o: TableOptions<T, R> = {},
   ): FormlyFieldConfig {
     const cols = columns(new FieldBuilder<R>()).map((c) => ({
       ...c,
@@ -241,14 +321,24 @@ export class FieldBuilder<T> {
         ? { props: { ...c.props, label: c.props?.['checkboxLabel'], checkboxLabel: undefined } }
         : {}),
     }));
-    return {
+    const fixedRows = o.fixedRows;
+    const field: FormlyFieldConfig = {
       key,
       type: 'table',
       className: `df-col-${o.col ?? 12}`,
-      defaultValue: [],
+      props: { fixed: !!fixedRows },
       fieldArray: { fieldGroup: cols },
-      ...(o.hideIf ? { expressions: { hide: (f: FormlyFieldConfig) => o.hideIf!(f.model) } } : {}),
+      ...(o.hideIf
+        ? { expressions: { hide: (f: FormlyFieldConfig) => o.hideIf!(modelOf<T>(f)) } }
+        : {}),
     };
+    // Getter: mỗi lần Formly lấy giá trị mặc định là một mảng mới (tránh dùng chung object dòng).
+    Object.defineProperty(field, 'defaultValue', {
+      get: () => (fixedRows ? fixedRows.map((r) => ({ ...r })) : []),
+      enumerable: true,
+      configurable: true,
+    });
+    return field;
   }
 
   /** LỐI THOÁT: nhúng component tự viết (component phải có input `field`). */
@@ -257,7 +347,9 @@ export class FieldBuilder<T> {
       type: 'component',
       className: `df-col-${o.col ?? 12}`,
       props: { component },
-      ...(o.hideIf ? { expressions: { hide: (f: FormlyFieldConfig) => o.hideIf!(f.model) } } : {}),
+      ...(o.hideIf
+        ? { expressions: { hide: (f: FormlyFieldConfig) => o.hideIf!(modelOf<T>(f)) } }
+        : {}),
     };
   }
 
@@ -276,6 +368,8 @@ export class FieldBuilder<T> {
       hideIf,
       disabledIf,
       validators,
+      check,
+      messages,
       resets,
       revalidates,
       onChange,
@@ -285,9 +379,9 @@ export class FieldBuilder<T> {
     } = o;
 
     const expressions: FieldExpressions = {};
-    if (hideIf) expressions.hide = (f) => hideIf(f.model);
-    if (requiredIf) expressions['props.required'] = (f) => requiredIf(f.model);
-    if (disabledIf) expressions['props.disabled'] = (f) => disabledIf(f.model);
+    if (hideIf) expressions.hide = (f) => hideIf(modelOf<T>(f));
+    if (requiredIf) expressions['props.required'] = (f) => requiredIf(modelOf<T>(f));
+    if (disabledIf) expressions['props.disabled'] = (f) => disabledIf(modelOf<T>(f));
 
     const change = buildChangeHandler<T>(resets, revalidates, onChange);
     const field: FormlyFieldConfig = {
@@ -297,7 +391,8 @@ export class FieldBuilder<T> {
       props: { label, ...props, ...stripUndefined(typeProps), ...(change ? { change } : {}) },
       ...(defaultValue !== undefined ? { defaultValue } : {}),
       ...(Object.keys(expressions).length ? { expressions } : {}),
-      ...(validators?.length ? { validators: { validation: validators } } : {}),
+      ...(validators?.length || check ? { validators: buildValidators(validators, check) } : {}),
+      ...(messages ? { validation: { messages } } : {}),
     };
     return extra ? mergeExtra(field, extra) : field;
   }
@@ -306,6 +401,12 @@ export class FieldBuilder<T> {
 export const fieldsFor = <T>() => new FieldBuilder<T>();
 
 // ───────────── helpers ─────────────
+
+/**
+ * Model của nhóm chứa field, không bao giờ undefined. Nhóm có key (vd tab 'plan') có thể chưa có
+ * object model ngay sau khi reset form về {} → hàm điều kiện của feature không phải tự kiểm tra.
+ */
+const modelOf = <M>(f: FormlyFieldConfig): M => (f.model ?? {}) as M;
 
 function buildChangeHandler<T>(
   resets: Key<T>[] | undefined,
@@ -339,7 +440,7 @@ function applyDependsOn<T>(
   field.expressions = {
     ...field.expressions,
     'props.disabled': (f) =>
-      isEmpty((f.model as Record<string, unknown>)?.[dependsOn]) || !!disabledIf?.(f.model),
+      isEmpty(modelOf<Record<string, unknown>>(f)[dependsOn]) || !!disabledIf?.(modelOf<T>(f)),
   };
   field.hooks = {
     ...field.hooks,
@@ -356,6 +457,32 @@ function applyDependsOn<T>(
   };
 }
 
+function buildValidators<T>(
+  refs: ValidatorRef[] | undefined,
+  check: CheckRule<T> | CheckRule<T>[] | undefined,
+): FieldValidators {
+  const rules = check ? ([] as CheckRule<T>[]).concat(check) : [];
+  const out: FieldValidators = refs?.length ? { validation: refs } : {};
+  rules.forEach((r, i) => {
+    out[`check${i}`] = {
+      expression: (c: AbstractControl, f: FormlyFieldConfig) =>
+        isEmpty(c.value) || r.test(c.value, modelOf<T>(f)),
+      message: r.message,
+    };
+  });
+  return out;
+}
+
+/** Chuẩn hoá kết quả tính: số không hợp lệ (NaN, Infinity) → null; làm tròn theo kiểu hiển thị. */
+function normalize(v: unknown, format: CalcFormat, digits: number): unknown {
+  if (v === undefined || v === null) return null;
+  if (format === 'date' || format === 'text') return v;
+  if (typeof v !== 'number' || !Number.isFinite(v)) return null;
+  if (format === 'money') return Math.round(v);
+  const k = 10 ** digits;
+  return Math.round(v * k) / k;
+}
+
 function mergeExtra(
   field: FormlyFieldConfig,
   extra: Partial<FormlyFieldConfig>,
@@ -366,6 +493,8 @@ function mergeExtra(
     props: { ...field.props, ...extra.props },
     expressions: { ...field.expressions, ...extra.expressions },
     hooks: { ...field.hooks, ...extra.hooks },
+    validators: { ...field.validators, ...extra.validators },
+    validation: { ...field.validation, ...extra.validation },
   };
 }
 
