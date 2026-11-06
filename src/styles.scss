@@ -1,0 +1,289 @@
+@use 'primeicons/primeicons.css';
+
+/* ───────────── Tokens ───────────── */
+:root {
+  --app-bg: #f5f7fb;
+  --app-surface: #ffffff;
+  --app-text: #1f2937;
+  --app-muted: #6b7280;
+  --app-border: #e5e7eb;
+  --app-danger: #dc2626;
+  --app-radius: 10px;
+  --df-gap-x: 1.25rem;
+  --df-gap-y: 1rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--app-bg);
+  color: var(--app-text);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+  font-size: 14px;
+}
+
+.app-shell {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+.muted {
+  color: var(--app-muted);
+}
+
+.text-danger {
+  color: var(--app-danger);
+}
+
+/* ───────────── Page ───────────── */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 16px;
+
+  h1 {
+    margin: 0 0 6px;
+    font-size: 1.5rem;
+  }
+
+  p {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+}
+
+.page-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.debug-panel {
+  display: block;
+  margin-top: 24px;
+
+  pre {
+    margin: 0;
+    max-height: 400px;
+    overflow: auto;
+    font-size: 12px;
+  }
+}
+
+/* ───────────── Dynamic form: khung ───────────── */
+.df-form {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  padding: 8px 20px 20px;
+}
+
+.df-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 16px;
+  margin-top: 8px;
+  border-top: 1px solid var(--app-border);
+}
+
+/* Lưới 12 cột. className của field = df-col-N */
+.df-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--df-gap-y) var(--df-gap-x);
+}
+
+@for $i from 1 through 12 {
+  .df-col-#{$i} {
+    grid-column: span #{$i};
+    min-width: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  @for $i from 1 through 12 {
+    .df-col-#{$i} {
+      grid-column: span 12;
+    }
+  }
+}
+
+.df-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.df-tabs__panel {
+  padding-top: 16px;
+}
+
+.df-tabs__badge {
+  margin-left: 6px;
+}
+
+.df-section {
+  margin: 0;
+}
+
+/* ───────────── Field ───────────── */
+.df-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.df-field__label {
+  font-weight: 600;
+  font-size: 13px;
+  min-height: 18px;
+}
+
+.df-field__req {
+  color: var(--app-danger);
+  margin-left: 2px;
+}
+
+.df-field__tip {
+  margin-left: 4px;
+  font-size: 12px;
+  color: var(--app-muted);
+  cursor: help;
+}
+
+.df-field__error {
+  color: var(--app-danger);
+  font-size: 12px;
+}
+
+.df-field__hint {
+  color: var(--app-muted);
+  font-size: 12px;
+}
+
+/* Checkbox: chừa chỗ label để thẳng hàng với field bên cạnh */
+.df-col--checkbox .df-field {
+  padding-top: 24px;
+}
+
+.df-check {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 40px;
+}
+
+.df-radio {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  min-height: 40px;
+  align-items: center;
+}
+
+.df-radio__item {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* Chế độ xem */
+.df-readonly {
+  min-height: 40px;
+  padding: 9px 0;
+  border-bottom: 1px dashed var(--app-border);
+  word-break: break-word;
+}
+
+.df-readonly--multiline {
+  white-space: pre-wrap;
+}
+
+/* ───────────── Bảng lặp ───────────── */
+.df-table {
+  overflow-x: auto;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 720px;
+  }
+
+  th,
+  td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--app-border);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    font-size: 13px;
+    background: var(--app-bg);
+  }
+}
+
+.df-table__idx {
+  width: 40px;
+  padding-top: 15px !important;
+  color: var(--app-muted);
+}
+
+.df-table__act {
+  width: 48px;
+}
+
+.df-table__empty {
+  text-align: center !important;
+  color: var(--app-muted);
+  padding: 16px !important;
+}
+
+/* ───────────── Khối tóm tắt tín dụng ───────────── */
+.credit-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 20px;
+  padding: 14px 16px;
+  background: var(--app-bg);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+}
+
+.credit-summary__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.credit-summary__bar {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+@media (max-width: 768px) {
+  .credit-summary {
+    grid-template-columns: 1fr;
+  }
+}
