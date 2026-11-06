@@ -43,9 +43,12 @@ describe('FieldBuilder', () => {
     const field = f.number('b', 'B', {
       check: { test: (v, m) => v <= (m.a ?? 0), message: 'B ≤ A' },
     });
-    const rule = (field.validators as Record<string, { expression: Function; message: string }>)[
-      'check0'
-    ];
+    const rule = (
+      field.validators as Record<
+        string,
+        { expression: (c: FormControl, f: unknown) => boolean; message: string }
+      >
+    )['check0'];
     const run = (v: unknown, model?: M) => rule.expression(new FormControl(v), { model });
     expect(run(null)).toBe(true);
     expect(run(5, { a: 10 })).toBe(true);

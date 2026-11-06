@@ -21,6 +21,7 @@ export type ValidatorRef = ValidatorName | { name: ValidatorName; options: Compa
  * Phụ thuộc field khác → khai báo `revalidates` ở field kia để kiểm tra lại khi nó đổi.
  */
 export interface CheckRule<T> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- kiểu giá trị tuỳ field (số, ngày, chuỗi)
   test: (value: any, model: T) => boolean;
   message: string;
 }

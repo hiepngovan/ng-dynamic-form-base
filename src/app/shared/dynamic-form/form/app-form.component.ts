@@ -53,7 +53,12 @@ const INVALID_SELECTOR = [
       @if (!readonly()) {
         <div class="df-form__actions">
           <ng-content select="[formActions]" />
-          <p-button type="submit" [label]="submitLabel()" icon="pi pi-save" [loading]="loading()" />
+          <p-button
+            type="submit"
+            [label]="submitLabel()"
+            [icon]="submitIcon()"
+            [loading]="loading()"
+          />
         </div>
       }
     </form>
@@ -66,6 +71,7 @@ export class AppFormComponent<T extends object = Record<string, unknown>> {
   readonly readonly = input(false);
   readonly loading = input(false);
   readonly submitLabel = input('Lưu');
+  readonly submitIcon = input('pi pi-save');
 
   /** Phát khi form hợp lệ. Giá trị = form.getRawValue() (gồm cả field disabled). */
   readonly submitted = output<T>();
@@ -103,6 +109,12 @@ export class AppFormComponent<T extends object = Record<string, unknown>> {
   /** Nạp lại dữ liệu (ví dụ sau khi load từ API) và đưa form về trạng thái chưa chỉnh sửa. */
   reset(model?: Partial<T>): void {
     this.options.resetModel?.(model);
+    this.options.updateInitialValue?.();
+  }
+
+  /** Sau khi lưu thành công: coi giá trị hiện tại là giá trị gốc (hết cảnh báo "chưa lưu"). */
+  markAsSaved(): void {
+    this.form.markAsPristine();
     this.options.updateInitialValue?.();
   }
 

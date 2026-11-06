@@ -307,3 +307,63 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ───────────── App shell ───────────── */
+.app-topbar {
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
+}
+
+.app-topbar__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  nav a {
+    color: var(--app-muted);
+    text-decoration: none;
+    font-weight: 600;
+
+    &.active {
+      color: var(--p-primary-color);
+    }
+  }
+}
+
+.app-topbar__brand {
+  font-weight: 700;
+}
+
+.app-topbar__spacer {
+  flex: 1;
+}
+
+.back-link {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 6px;
+  color: var(--app-muted);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.page-progress {
+  height: 4px;
+  margin-bottom: 12px;
+}
+
+.list-table {
+  margin-top: 16px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  overflow: hidden;
+}
+
+.list-error {
+  margin-top: 16px;
+}

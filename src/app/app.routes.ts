@@ -1,12 +1,11 @@
 import { Routes } from '@angular/router';
-import { unsavedChangesGuard } from './shared/dynamic-form';
 
 export const routes: Routes = [
+  { path: '', pathMatch: 'full', redirectTo: 'customers' },
   {
-    path: '',
-    loadComponent: () =>
-      import('./features/customer/customer-edit.page').then((m) => m.CustomerEditPage),
-    canDeactivate: [unsavedChangesGuard],
+    path: 'customers',
+    loadChildren: () =>
+      import('./features/customer/customer.routes').then((m) => m.CUSTOMER_ROUTES),
   },
-  { path: '**', redirectTo: '' },
+  { path: '**', redirectTo: 'customers' },
 ];

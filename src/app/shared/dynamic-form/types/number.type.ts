@@ -14,7 +14,7 @@ import { NumberProps } from '../core/props';
   template: `
     @if (readonly) {
       <div class="df-readonly">
-        @if (formControl.value != null) {
+        @if (formControl.value !== null && formControl.value !== undefined) {
           {{ formControl.value | number: '1.0-' + (props.maxFractionDigits ?? 2) }}
           {{
             props.mode === 'currency'

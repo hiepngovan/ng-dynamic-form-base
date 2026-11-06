@@ -1,6 +1,6 @@
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { FieldBuilder, fieldsFor } from '../../../../shared/dynamic-form';
-import { MasterDataService } from '../../master-data.service';
+import { MasterDataService } from '../../../../core/master-data.service';
 import { appraisalSections } from './plan-appraisal';
 import { businessSections } from './plan-business';
 import { collateralSections } from './plan-collateral';

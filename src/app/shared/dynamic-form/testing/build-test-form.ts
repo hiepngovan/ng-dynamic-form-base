@@ -49,15 +49,15 @@ export function buildTestForm<T extends object>(
       for (const [path, value] of Object.entries(values)) {
         const parts = path.split('.');
         const last = parts.pop()!;
-        let m = model as Record<string, any>;
-        for (const p of parts) m = m[p] ??= {};
+        let m = model as Record<string, unknown>;
+        for (const p of parts) m = (m[p] ??= {}) as Record<string, unknown>;
         m[last] = value;
         form.get(path)?.setValue(value);
       }
       options.checkExpressions?.(root);
     },
     /** Giá trị hiện tại của control theo đường dẫn. */
-    value(path: string): any {
+    value(path: string): unknown {
       return form.get(path)?.value;
     },
     /** Mô phỏng người dùng đổi giá trị trên UI: gán giá trị + gọi props.change như type thật. */

@@ -1,7 +1,7 @@
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { fieldsFor } from '../../../shared/dynamic-form';
 import { Customer } from '../customer.model';
-import { MasterDataService } from '../master-data.service';
+import { MasterDataService } from '../../../core/master-data.service';
 import { addressTab } from './tab-address';
 import { contactsTab } from './tab-contacts';
 import { extraTab } from './tab-extra';

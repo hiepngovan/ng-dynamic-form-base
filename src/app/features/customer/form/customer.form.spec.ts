@@ -3,7 +3,7 @@ import { provideFormlyCore } from '@ngx-formly/core';
 import { DYNAMIC_FORM_CONFIG } from '../../../shared/dynamic-form';
 import { buildTestForm } from '../../../shared/dynamic-form/testing/build-test-form';
 import { Customer } from '../customer.model';
-import { MasterDataService } from '../master-data.service';
+import { MasterDataService } from '../../../core/master-data.service';
 import { buildCustomerForm, countInputFields } from './customer.form';
 
 describe('Form khách hàng (cấu hình)', () => {

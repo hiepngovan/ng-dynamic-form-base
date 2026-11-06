@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { delay, shareReplay } from 'rxjs/operators';
-import { SelectOption } from '../../shared/dynamic-form';
+import { SelectOption } from '../shared/dynamic-form';
 
 /**
  * Danh mục dùng chung — MOCK, giả lập độ trễ API 300ms.
@@ -120,7 +120,7 @@ export class MasterDataService {
   }
 }
 
-const PROVINCES: SelectOption[] = [
+export const PROVINCES: SelectOption[] = [
   { value: 'HN', label: 'Hà Nội' },
   { value: 'HCM', label: 'TP. Hồ Chí Minh' },
   { value: 'HP', label: 'Hải Phòng' },

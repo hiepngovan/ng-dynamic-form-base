@@ -1,39 +1,91 @@
-import { Injectable } from '@angular/core';
-import { Observable, of, throwError, timer } from 'rxjs';
-import { delay, mergeMap } from 'rxjs/operators';
-import { Customer } from './customer.model';
-import { docApplies } from './form/plan/plan.calc';
-import { CRITERIA, DOCS, LoanPlan, MONTH_ROWS } from './form/plan/plan.model';
+import { Customer, CustomerRow } from '../features/customer/customer.model';
+import { docApplies } from '../features/customer/form/plan/plan.calc';
+import { CRITERIA, DOCS, LoanPlan, MONTH_ROWS } from '../features/customer/form/plan/plan.model';
+import { PROVINCES } from '../core/master-data.service';
 
-export interface ApiValidationError {
-  status: 400;
-  error: { fieldErrors: Record<string, string> };
+/**
+ * DỮ LIỆU GIẢ cho mock backend (chỉ dùng khi chưa có API thật).
+ * Bản ghi đầu tiên là hồ sơ mẫu đầy đủ (có Phương án vay ~280 field), còn lại sinh ngẫu nhiên.
+ */
+export function seedCustomers(count = 236): Customer[] {
+  const first = { ...sampleCustomer(), id: 'c1', createdAt: new Date(2026, 10, 2) } as Customer;
+  const ho = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Vũ', 'Đặng', 'Bùi', 'Đỗ', 'Ngô'];
+  const dem = ['Văn', 'Thị', 'Minh', 'Thu', 'Đức', 'Ngọc', 'Quốc', 'Hải'];
+  const ten = [
+    'An',
+    'Bình',
+    'Chi',
+    'Dũng',
+    'Giang',
+    'Hà',
+    'Hùng',
+    'Lan',
+    'Minh',
+    'Nam',
+    'Phương',
+    'Quân',
+    'Sơn',
+    'Tâm',
+    'Uyên',
+    'Vy',
+  ];
+  const company = ['Công ty TNHH', 'Công ty CP', 'Doanh nghiệp tư nhân'];
+  const biz = [
+    'Thương mại Hoà Phát',
+    'Xây dựng Sông Hồng',
+    'Logistics Bắc Nam',
+    'Thực phẩm Sạch Việt',
+    'Công nghệ An Khang',
+    'Vật tư Minh Long',
+  ];
+  const statuses = ['ACTIVE', 'ACTIVE', 'ACTIVE', 'SUSPENDED', 'CLOSED'];
+  // mulberry32: ngẫu nhiên nhưng cố định giữa các lần chạy (dữ liệu demo ổn định).
+  let seed = 42;
+  const rnd = (n: number) => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return Math.floor((((t ^ (t >>> 14)) >>> 0) / 4294967296) * n);
+  };
+  const rest = Array.from({ length: count - 1 }, (_, i) => {
+    const isCompany = rnd(4) === 0;
+    const fullName = isCompany
+      ? `${company[rnd(company.length)]} ${biz[rnd(biz.length)]} ${i + 1}`
+      : `${ho[rnd(ho.length)]} ${dem[rnd(dem.length)]} ${ten[rnd(ten.length)]}`;
+    return {
+      id: `c${i + 2}`,
+      code: `KH${String(1000 + i).padStart(6, '0')}`,
+      customerType: isCompany ? 'COMPANY' : 'PERSONAL',
+      fullName,
+      phone: `09${String(10000000 + rnd(89999999)).padStart(8, '0')}`,
+      email: null,
+      provinceId: PROVINCES[rnd(PROVINCES.length)].value as string,
+      street: `${1 + rnd(200)} Đường số ${1 + rnd(30)}`,
+      status: statuses[rnd(statuses.length)],
+      industryId: `IND${1 + rnd(8)}`,
+      customerGroupId: `G${1 + rnd(5)}`,
+      creditLimit: rnd(3) === 0 ? null : (1 + rnd(50)) * 10_000_000,
+      createdAt: new Date(2024, rnd(24), 1 + rnd(28)),
+    } as unknown as Customer;
+  });
+  return [first, ...rest];
 }
 
-/** MOCK API. SĐT 0900000000 → giả lập lỗi trùng dữ liệu từ server. */
-@Injectable({ providedIn: 'root' })
-export class CustomerService {
-  save(value: Partial<Customer>): Observable<{ code: string }> {
-    return timer(600).pipe(
-      mergeMap(() => {
-        if (value.phone === '0900000000') {
-          const err: ApiValidationError = {
-            status: 400,
-            error: { fieldErrors: { phone: 'Số điện thoại đã được đăng ký cho khách hàng khác' } },
-          };
-          return throwError(() => err);
-        }
-        return of({ code: value.code ?? `KH${Date.now().toString().slice(-6)}` });
-      }),
-    );
-  }
-
-  getSample(): Observable<Partial<Customer>> {
-    return of(sampleCustomer()).pipe(delay(200));
-  }
+export function toRow(c: Customer): CustomerRow {
+  return {
+    id: c.id!,
+    code: c.code ?? '',
+    fullName: c.fullName ?? '',
+    customerType: c.customerType ?? 'PERSONAL',
+    phone: c.phone,
+    provinceName: PROVINCES.find((p) => p.value === c.provinceId)?.label ?? null,
+    status: c.status ?? 'ACTIVE',
+    creditLimit: c.creditLimit ?? null,
+    createdAt: (c as Customer & { createdAt: Date }).createdAt,
+  };
 }
 
-function sampleCustomer(): Partial<Customer> {
+export function sampleCustomer(): Partial<Customer> {
   const extra: Record<string, unknown> = {};
   for (let i = 1; i <= 90; i += 5) extra[`f${String(i).padStart(3, '0')}`] = `Giá trị ${i}`;
   return {

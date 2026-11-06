@@ -12,6 +12,9 @@ export interface Contact {
 
 /** DTO khách hàng (model phẳng — các tab không có key, trừ `extra`). */
 export interface Customer {
+  /** Do server sinh. null / không có = khách hàng mới. */
+  id?: string | null;
+
   // ── Tab Thông tin chung
   customerType: CustomerType | null;
   code: string | null;
@@ -79,3 +82,43 @@ export interface Customer {
   // ── Tab Thông tin bổ sung (tab CÓ key → model.extra = { ... })
   extra: Record<string, unknown>;
 }
+
+/** Một dòng trên màn hình danh sách (API trả bản rút gọn, đã kèm tên tỉnh). */
+export interface CustomerRow {
+  id: string;
+  code: string;
+  fullName: string;
+  customerType: CustomerType;
+  phone: string | null;
+  provinceName: string | null;
+  status: string;
+  creditLimit: number | null;
+  createdAt: Date;
+}
+
+/** Bộ lọc danh sách — chỉ dùng chuỗi để đồng bộ lên URL. */
+export interface CustomerFilter {
+  [key: string]: string | null;
+  q: string | null;
+  customerType: string | null;
+  status: string | null;
+  provinceId: string | null;
+}
+
+export const EMPTY_CUSTOMER_FILTER: CustomerFilter = {
+  q: null,
+  customerType: null,
+  status: null,
+  provinceId: null,
+};
+
+export const CUSTOMER_TYPE_LABELS = {
+  PERSONAL: { label: 'Cá nhân', severity: 'info' },
+  COMPANY: { label: 'Doanh nghiệp', severity: 'contrast' },
+} as const;
+
+export const CUSTOMER_STATUS_LABELS = {
+  ACTIVE: { label: 'Đang hoạt động', severity: 'success' },
+  SUSPENDED: { label: 'Tạm ngưng', severity: 'warn' },
+  CLOSED: { label: 'Ngừng giao dịch', severity: 'secondary' },
+} as const;

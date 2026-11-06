@@ -1,7 +1,7 @@
 import { FormlyFieldConfig } from '@ngx-formly/core';
 import { FieldBuilder } from '../../../shared/dynamic-form';
 import { Customer } from '../customer.model';
-import { MasterDataService } from '../master-data.service';
+import { MasterDataService } from '../../../core/master-data.service';
 
 export function addressTab(f: FieldBuilder<Customer>, md: MasterDataService): FormlyFieldConfig[] {
   return [
