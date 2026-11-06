@@ -34,3 +34,6 @@ export interface ApiError {
 export function isApiError(e: unknown): e is ApiError {
   return typeof e === 'object' && e !== null && 'status' in e && 'message' in e;
 }
+
+/** Màu của tag / nút (theo PrimeNG). */
+export type Severity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';

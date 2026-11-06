@@ -3,9 +3,7 @@ import { Component, computed, input, model, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
-import { Sort } from '../models';
-
-type Severity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
+import { Severity, Sort } from '../models';
 
 /** Khai báo một cột. Dev chỉ viết mảng cấu hình này, không viết template bảng. */
 export interface ColumnDef<T> {

@@ -322,6 +322,11 @@ body {
   align-items: center;
   gap: 16px;
 
+  nav {
+    display: flex;
+    gap: 16px;
+  }
+
   nav a {
     color: var(--app-muted);
     text-decoration: none;
@@ -366,4 +371,229 @@ body {
 
 .list-error {
   margin-top: 16px;
+}
+
+/* ───────────── Wizard (f.steps) ───────────── */
+.df-steps {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 0 0 12px;
+  list-style: none;
+  border-bottom: 1px solid var(--app-border);
+  overflow-x: auto;
+}
+
+.df-steps__item {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+
+  &:not(:last-child)::after {
+    content: '';
+    flex: 1;
+    min-width: 16px;
+    height: 2px;
+    margin: 0 8px;
+    background: var(--app-border);
+  }
+}
+
+.df-steps__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border: 0;
+  background: none;
+  color: var(--app-muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  border-radius: 6px;
+
+  &:focus-visible {
+    outline: 2px solid var(--p-primary-color);
+  }
+}
+
+.df-steps__num {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--app-border);
+  background: var(--app-surface);
+  font-size: 13px;
+}
+
+.df-steps__item--active .df-steps__btn {
+  color: var(--app-text);
+
+  .df-steps__num {
+    border-color: var(--p-primary-color);
+    background: var(--p-primary-color);
+    color: var(--p-primary-contrast-color, #fff);
+  }
+}
+
+.df-steps__item--done .df-steps__num {
+  border-color: var(--p-primary-color);
+  color: var(--p-primary-color);
+}
+
+.df-steps__item--error .df-steps__btn {
+  color: var(--app-danger);
+
+  .df-steps__num {
+    border-color: var(--app-danger);
+    color: var(--app-danger);
+  }
+}
+
+.df-steps__panel {
+  padding-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .df-steps__label {
+    display: none;
+  }
+
+  .df-steps__item--active .df-steps__label {
+    display: inline;
+  }
+}
+
+/* ───────────── Lookup / đính kèm ───────────── */
+.df-lookup__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.df-files__drop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px dashed var(--app-border);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.df-files__drop--over {
+  border-color: var(--p-primary-color);
+  background: var(--app-bg);
+}
+
+.df-field--error .df-files__drop {
+  border-color: var(--app-danger);
+}
+
+.df-files__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.df-files__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  min-width: 0;
+
+  a {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.df-files__bar {
+  flex: 1;
+  max-width: 200px;
+  height: 4px;
+}
+
+/* ───────────── Form: nháp ───────────── */
+.df-form__draft {
+  margin-bottom: 12px;
+}
+
+.df-form__status {
+  margin-right: auto;
+  align-self: center;
+  font-size: 12px;
+}
+
+/* ───────────── Quy trình xử lý ───────────── */
+.wf-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wf-dialog__confirm {
+  margin: 0 0 12px;
+}
+
+.wf-history {
+  margin: 0;
+  padding: 0 0 0 20px;
+  list-style: none;
+  border-left: 2px solid var(--app-border);
+}
+
+.wf-history__item {
+  position: relative;
+  padding: 0 0 16px 4px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -27px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--app-surface);
+    border: 2px solid var(--p-primary-color);
+  }
+}
+
+.wf-history__head {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.wf-history__comment {
+  margin: 6px 0 0;
+  padding: 6px 10px;
+  background: var(--app-bg);
+  border-radius: 6px;
+}
+
+.loan-return {
+  margin-bottom: 12px;
+}
+
+.loan-history {
+  margin-top: 16px;
+  padding: 16px 20px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+
+  h2 {
+    margin: 0 0 12px;
+    font-size: 1.1rem;
+  }
 }

@@ -35,6 +35,11 @@ export interface ChangeContext<T> {
   form: AbstractControl;
   /** Gán giá trị cho field khác cùng nhóm (cập nhật cả control lẫn model). */
   set: (key: Key<T>, value: unknown) => void;
+  /**
+   * select / radio / lookup: lựa chọn vừa chọn, kèm `data` (vd lãi suất của gói vay).
+   * null = vừa xoá lựa chọn (người dùng bấm xoá, hoặc field cha đổi nên field này bị xoá theo).
+   */
+  option?: SelectOption | null;
 }
 
 export interface FieldOptions<T> {
@@ -95,9 +100,35 @@ export interface NumberOptions<T> extends FieldOptions<T> {
 export interface SelectOptions<T> extends FieldOptions<T> {
   options?: OptionsSource;
   filter?: boolean;
-  /** Danh sách phụ thuộc field cha: tải lại khi cha đổi, khoá khi cha rỗng. Dùng kèm loadOptions. */
+  /**
+   * Danh sách phụ thuộc field cha: tải lại khi cha đổi, khoá khi cha rỗng. Dùng kèm loadOptions.
+   * Người dùng đổi field cha → field này TỰ bị xoá (theo chuỗi nhiều cấp), không cần khai báo resets.
+   */
   dependsOn?: Key<T>;
   loadOptions?: (parentValue: unknown) => Observable<SelectOption[]>;
+}
+
+export interface LookupOptions<T> extends FieldOptions<T> {
+  /** Tìm trên server theo từ khoá. Dùng cho danh sách lớn (khách hàng, nhân viên...). */
+  search: (query: string) => Observable<SelectOption[]>;
+  /**
+   * Key trong model giữ sẵn nhãn (vd 'customerName' do server trả kèm) → mở bản ghi cũ không phải
+   * gọi resolve. Không bắt buộc là một field của form.
+   */
+  labelKey?: Key<T>;
+  /** Lấy nhãn theo giá trị khi mở bản ghi cũ (khi không có labelKey). */
+  resolve?: (value: unknown) => Observable<SelectOption | null>;
+  /** Số ký tự tối thiểu trước khi tìm. Mặc định 2. */
+  minQueryLength?: number;
+}
+
+export interface FileOptions<T> extends FieldOptions<T> {
+  /** Định dạng cho phép: '.pdf,image/*' */
+  accept?: string;
+  /** Dung lượng tối đa mỗi tệp (MB). Mặc định 10. */
+  maxSizeMb?: number;
+  /** Số tệp tối đa. Mặc định 10. */
+  maxFiles?: number;
 }
 
 export interface LayoutOptions<T> {
@@ -206,8 +237,40 @@ export class FieldBuilder<T> {
 
   select(key: Key<T>, label: string, o: SelectOptions<T> = {}): FormlyFieldConfig {
     const { options, filter, dependsOn, loadOptions, ...rest } = o;
-    const field = this.make('select', key, label, rest, { options, filter });
+    const field = this.make('select', key, label, rest, { options, filter, dependsOn });
     if (dependsOn && loadOptions) applyDependsOn(field, dependsOn, loadOptions, rest.disabledIf);
+    return field;
+  }
+
+  /**
+   * Chọn từ danh sách LỚN trên server (gõ để tìm). Giá trị lưu là `value` của lựa chọn (vd id).
+   * Lấy thêm thông tin của lựa chọn qua onChange: ({ option, set }) => set('phone', option?.data...).
+   */
+  lookup(key: Key<T>, label: string, o: LookupOptions<T>): FormlyFieldConfig {
+    const { search, labelKey, resolve, minQueryLength, ...rest } = o;
+    return this.make('lookup', key, label, rest, { search, labelKey, resolve, minQueryLength });
+  }
+
+  /**
+   * Đính kèm tệp. Giá trị = FileRef[] (tệp đã tải lên qua DF_FILE_STORAGE của ứng dụng).
+   * `required` = phải có ít nhất 1 tệp. Đang tải dở thì form không submit được.
+   */
+  files(key: Key<T>, label: string, o: FileOptions<T> = {}): FormlyFieldConfig {
+    const { accept, maxSizeMb = 10, maxFiles = 10, ...rest } = o;
+    const field = this.make(
+      'files',
+      key,
+      label,
+      { col: 12, ...rest },
+      { accept, maxSizeMb, maxFiles },
+    );
+    field.validators = {
+      ...field.validators,
+      uploading: {
+        expression: (_: AbstractControl, f: FormlyFieldConfig) => !f.props?.['uploading'],
+        message: 'Đang tải tệp lên, vui lòng chờ',
+      },
+    };
     return field;
   }
 
@@ -305,6 +368,19 @@ export class FieldBuilder<T> {
       fieldGroupClassName: 'df-stack',
       fieldGroup: fields,
     };
+  }
+
+  /**
+   * Wizard nhiều bước. Nút Quay lại / Tiếp tục nằm ở thanh nút của <app-form>; chế độ đi
+   * (linear / free) đặt bằng input stepMode của app-form. Xem StepsType.
+   */
+  steps(...steps: FormlyFieldConfig[]): FormlyFieldConfig {
+    return { type: 'steps', className: 'df-col-12', fieldGroup: steps };
+  }
+
+  /** Một bước của wizard. Giống tab: không có key → model phẳng (trừ khi truyền key). */
+  step(label: string, fields: FormlyFieldConfig[], o: { key?: Key<T> } = {}): FormlyFieldConfig {
+    return this.tab(label, fields, o);
   }
 
   /** Danh sách dòng dạng bảng. `columns` dùng builder của kiểu dòng R. */
@@ -415,7 +491,7 @@ function buildChangeHandler<T>(
   onChange: FieldOptions<T>['onChange'],
 ) {
   if (!resets?.length && !revalidates?.length && !onChange) return undefined;
-  return (field: FormlyFieldConfig) => {
+  return (field: FormlyFieldConfig, event?: unknown) => {
     const form = field.form!;
     resets?.forEach((k) => setSiblingValue(field, k, null));
     revalidates?.forEach((k) => form.get(k)?.updateValueAndValidity());
@@ -425,6 +501,7 @@ function buildChangeHandler<T>(
       field,
       form,
       set: (k, v) => setSiblingValue(field, k, v),
+      option: (event as { option?: SelectOption | null } | undefined)?.option,
     });
     // Model có thể vừa đổi ở field chưa render → tính lại expressions (ẩn/hiện, required...) ngay.
     field.options?.checkExpressions?.(rootOf(field));

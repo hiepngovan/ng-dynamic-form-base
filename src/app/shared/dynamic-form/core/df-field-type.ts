@@ -1,13 +1,15 @@
 import { Directive } from '@angular/core';
 import { FieldType, FieldTypeConfig } from '@ngx-formly/core';
+import { notifyUserChange } from './field-utils';
 import { DfProps } from './props';
 
 /**
  * Base class cho mọi field type của base project.
  * - `readonly`: form đang ở chế độ xem (formState.readonly) HOẶC field chỉ hiển thị (props.readonly,
  *   vd field tính toán) → type hiển thị dạng text.
- * - `emitChange`: gọi props.change khi NGƯỜI DÙNG đổi giá trị. Component PrimeNG không phát
- *   sự kiện DOM 'change' chuẩn nên type phải tự gọi hàm này từ output của component.
+ * - `emitChange`: báo NGƯỜI DÙNG vừa đổi giá trị (xoá field phụ thuộc, chạy onChange...).
+ *   Component PrimeNG không phát sự kiện DOM 'change' chuẩn nên type phải tự gọi hàm này từ
+ *   output của component. Xem notifyUserChange.
  */
 @Directive()
 export abstract class DfFieldType<P extends DfProps = DfProps> extends FieldType<
@@ -18,6 +20,6 @@ export abstract class DfFieldType<P extends DfProps = DfProps> extends FieldType
   }
 
   emitChange(event?: unknown): void {
-    this.props.change?.(this.field, event);
+    notifyUserChange(this.field, event);
   }
 }

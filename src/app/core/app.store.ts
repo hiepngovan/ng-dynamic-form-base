@@ -4,16 +4,43 @@ import { signalStore, withComputed, withMethods, withState } from '@ngrx/signals
 import { withStoreDevtools } from '../shared/data';
 
 export type Role = 'MANAGER' | 'STAFF';
-export type Permission = 'customer.view' | 'customer.edit' | 'customer.delete';
+export type Permission =
+  | 'customer.view'
+  | 'customer.edit'
+  | 'customer.delete'
+  | 'loan.view'
+  | 'loan.edit'
+  | 'loan.approve';
 
+/**
+ * Hồ sơ vay theo mô hình 4 mắt: chuyên viên lập & gửi duyệt, trưởng phòng duyệt / trả lại / từ chối.
+ * Trưởng phòng không lập hồ sơ (không tự duyệt hồ sơ của mình).
+ */
 const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
-  MANAGER: ['customer.view', 'customer.edit', 'customer.delete'],
-  STAFF: ['customer.view', 'customer.edit'],
+  MANAGER: ['customer.view', 'customer.edit', 'customer.delete', 'loan.view', 'loan.approve'],
+  STAFF: ['customer.view', 'customer.edit', 'loan.view', 'loan.edit'],
+};
+
+/** Người dùng giả cho từng vai trò (lịch sử xử lý hồ sơ hiện đúng tên người làm). */
+const USERS: Record<Role, string> = {
+  MANAGER: 'Trần Thu Hà',
+  STAFF: 'Nguyễn Minh Quân',
+};
+
+/** MOCK: nhớ vai trò đã chọn qua F5 (khi có đăng nhập thì vai trò lấy từ token). */
+const ROLE_KEY = 'mock-role';
+const savedRole = (): Role => {
+  try {
+    const r = localStorage.getItem(ROLE_KEY);
+    return r === 'STAFF' || r === 'MANAGER' ? r : 'MANAGER';
+  } catch {
+    return 'MANAGER';
+  }
 };
 
 export const ROLE_OPTIONS = [
-  { value: 'MANAGER' as Role, label: 'Quản lý' },
-  { value: 'STAFF' as Role, label: 'Nhân viên' },
+  { value: 'MANAGER' as Role, label: 'Trưởng phòng (duyệt)' },
+  { value: 'STAFF' as Role, label: 'Chuyên viên (lập hồ sơ)' },
 ];
 
 /**
@@ -23,7 +50,10 @@ export const ROLE_OPTIONS = [
  */
 export const AppStore = signalStore(
   { providedIn: 'root' },
-  withState({ user: { name: 'Nguyễn Minh Quân', role: 'MANAGER' as Role } }),
+  withState(() => {
+    const role = savedRole();
+    return { user: { name: USERS[role], role } };
+  }),
   withComputed(({ user }) => ({
     permissions: computed(() => ROLE_PERMISSIONS[user().role]),
   })),
@@ -33,7 +63,12 @@ export const AppStore = signalStore(
       return store.permissions().includes(permission);
     },
     switchRole(role: Role) {
-      updateState(store, 'app: switch role', { user: { ...store.user(), role } });
+      updateState(store, 'app: switch role', { user: { name: USERS[role], role } });
+      try {
+        localStorage.setItem(ROLE_KEY, role);
+      } catch {
+        /* bỏ qua */
+      }
     },
   })),
   withStoreDevtools('app'),

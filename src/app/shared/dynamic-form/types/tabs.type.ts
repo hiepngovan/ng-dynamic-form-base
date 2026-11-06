@@ -62,7 +62,7 @@ export class TabsType extends FieldType implements OnInit {
   /** Số lỗi theo từng tab. Tính lại khi form đổi trạng thái, blur, hoặc submit lỗi. */
   readonly errors = computed(() => {
     this.tick();
-    return (this.field.fieldGroup ?? []).map(countErrors);
+    return (this.field.fieldGroup ?? []).map((tab) => countErrors(tab));
   });
 
   ngOnInit(): void {

@@ -7,9 +7,11 @@ import { provideFormlyCore } from '@ngx-formly/core';
 import { MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import { routes } from './app.routes';
+import { authInterceptor } from './core/auth.interceptor';
+import { FileStorageService } from './core/file-storage.service';
 import { mockBackendInterceptor } from './mock/mock-backend.interceptor';
 import { apiErrorInterceptor } from './shared/data';
-import { DYNAMIC_FORM_CONFIG } from './shared/dynamic-form';
+import { DF_FILE_STORAGE, DYNAMIC_FORM_CONFIG } from './shared/dynamic-form';
 import { AppThemePreset, PRIMENG_VI } from './theme';
 
 registerLocaleData(localeVi);
@@ -27,7 +29,9 @@ export const appConfig: ApplicationConfig = {
     ),
     // Thứ tự: apiErrorInterceptor bọc ngoài → thấy lỗi của mọi request. Mock backend luôn cuối cùng
     // (đứng ở vị trí của server thật) — xoá khi có API.
-    provideHttpClient(withInterceptors([apiErrorInterceptor, mockBackendInterceptor])),
+    provideHttpClient(
+      withInterceptors([apiErrorInterceptor, authInterceptor, mockBackendInterceptor]),
+    ),
     // Toast dùng chung toàn app (<p-toast> nằm ở App).
     MessageService,
     { provide: LOCALE_ID, useValue: 'vi' },
@@ -36,5 +40,7 @@ export const appConfig: ApplicationConfig = {
       translation: PRIMENG_VI,
     }),
     provideFormlyCore(DYNAMIC_FORM_CONFIG),
+    // Field files() của mọi form tải tệp qua service này.
+    { provide: DF_FILE_STORAGE, useExisting: FileStorageService },
   ],
 };

@@ -7,7 +7,12 @@ const labelOf = (f: FormlyFieldConfig) => f.props?.label || 'Trường này';
  * Feature KHÔNG tự viết message cho các lỗi này. Cần i18n thì thay chuỗi bằng translate.instant(...).
  */
 export const VALIDATION_MESSAGES: ValidationMessageOption[] = [
-  { name: 'required', message: (_e, f) => `${labelOf(f)} là bắt buộc` },
+  {
+    name: 'required',
+    // Field đính kèm đang tải tệp lên: chưa có tệp nhưng không phải do người dùng bỏ trống.
+    message: (_e, f) =>
+      f.props?.['uploading'] ? 'Đang tải tệp lên, vui lòng chờ' : `${labelOf(f)} là bắt buộc`,
+  },
   { name: 'minLength', message: (e) => `Tối thiểu ${e.requiredLength} ký tự` },
   { name: 'maxLength', message: (e) => `Tối đa ${e.requiredLength} ký tự` },
   { name: 'min', message: (e) => `Giá trị nhỏ nhất là ${e.min}` },

@@ -7,12 +7,22 @@ export const isEmpty = (v: unknown): boolean =>
  * Đếm số field đang lỗi (chỉ field lá có key, đã touched hoặc luôn hiện lỗi, không bị ẩn).
  * Dùng cho badge lỗi trên tab.
  */
-export function countErrors(field: FormlyFieldConfig): number {
+export function countErrors(field: FormlyFieldConfig, includeUntouched = false): number {
   if (field.hide) return 0;
   const isLeaf = !field.fieldGroup;
-  const shown = field.formControl?.touched || !!field.validation?.show;
+  const shown = includeUntouched || field.formControl?.touched || !!field.validation?.show;
   const self = isLeaf && field.key != null && field.formControl?.invalid && shown ? 1 : 0;
-  return (field.fieldGroup ?? []).reduce((sum, child) => sum + countErrors(child), self);
+  return (field.fieldGroup ?? []).reduce(
+    (sum, child) => sum + countErrors(child, includeUntouched),
+    self,
+  );
+}
+
+/** Đánh dấu touched mọi control trong một nhánh (vd một bước của wizard) để lỗi hiện ra. */
+export function markTouched(field: FormlyFieldConfig): void {
+  if (field.hide) return;
+  if (field.key != null) field.formControl?.markAllAsTouched();
+  else field.fieldGroup?.forEach(markTouched);
 }
 
 /** Field gốc của cây cấu hình (dùng để gọi checkExpressions cho toàn form). */
@@ -40,4 +50,38 @@ export function isHiddenField(field: FormlyFieldConfig): boolean {
     if (f.hide) return true;
   }
   return false;
+}
+
+/**
+ * NGƯỜI DÙNG vừa đổi giá trị của field. Mọi type gọi hàm này (qua DfFieldType.emitChange):
+ *  1. Xoá các field phụ thuộc (props.dependsOn = key của field này), theo chuỗi: Nhóm SP → Sản phẩm
+ *     → Gói vay. Field bị xoá cũng được coi là "người dùng đổi" → onChange / resets của nó chạy
+ *     (ctx.option = null), nên các giá trị suy ra từ nó (vd lãi suất) cũng được xoá theo.
+ *  2. Gọi props.change (resets, revalidates, onChange khai báo trong builder).
+ *  3. Tính lại expressions (ẩn/hiện, required...) cho toàn form.
+ */
+export function notifyUserChange(field: FormlyFieldConfig, event?: unknown): void {
+  cascade(field, event);
+  // Handler do builder tạo (props.change) đã tự tính lại; chỉ tính khi field không có handler.
+  if (!field.props?.change) field.options?.checkExpressions?.(rootOf(field));
+}
+
+function cascade(field: FormlyFieldConfig, event: unknown): void {
+  for (const dep of dependentsOf(field)) {
+    if (isEmpty(dep.formControl?.value)) continue;
+    setSiblingValue(dep, String(dep.key), null);
+    cascade(dep, { option: null });
+  }
+  field.props?.change?.(field, event);
+}
+
+/** Field cùng nhóm khai báo dependsOn = key của field này. */
+function dependentsOf(field: FormlyFieldConfig): FormlyFieldConfig[] {
+  const out: FormlyFieldConfig[] = [];
+  const walk = (f: FormlyFieldConfig) => {
+    if (f.props?.['dependsOn'] === field.key && f.form === field.form) out.push(f);
+    f.fieldGroup?.forEach(walk);
+  };
+  walk(rootOf(field));
+  return out;
 }

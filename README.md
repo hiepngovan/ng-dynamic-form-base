@@ -4,6 +4,9 @@ Base project Angular cho **form sinh từ cấu hình** (dynamic form) và **l�
 khai báo field, validation, onChange… thì form tự render; mỗi màn hình có một store dựng từ khối có sẵn.
 Mục tiêu: đồng bộ cách làm giữa các dev, giảm bug, làm màn hình nhanh.
 
+Hai chức năng mẫu dùng chung base: **Khách hàng** (form 6 tab, ~465 field) và **Hồ sơ vay** (wizard
+3 bước, chọn khách hàng tìm trên server, select 3 cấp, đính kèm tệp, quy trình duyệt, lưu nháp).
+
 | Thành phần | Phiên bản | Ghi chú |
 |---|---|---|
 | Angular | 21.2 (standalone, zoneless) | |
@@ -24,14 +27,22 @@ npm run lint       # gồm các quy tắc kiến trúc
 npm run build
 ```
 
-Chưa có backend: `mock/mock-backend.interceptor.ts` đóng vai server (236 khách hàng, trễ 350 ms).
+Chưa có backend: `mock/` đóng vai server (236 khách hàng, 58 hồ sơ vay, tải tệp; trễ 350 ms).
 
 Thử trên trang mẫu:
 - Danh sách: lọc, sắp xếp, phân trang → xem URL đổi; F5 / Back / Forward giữ đúng trạng thái.
   Chọn dòng ở nhiều trang rồi xoá. Tìm `loi500` để thử lỗi máy chủ.
-- Đổi vai trò **Nhân viên** ở thanh trên → mất quyền xoá (ẩn checkbox, nút xoá).
+- Đổi vai trò **Chuyên viên** ở thanh trên → mất quyền xoá khách hàng (ẩn checkbox, nút xoá).
 - Mở **KH000123** (hồ sơ mẫu đầy đủ): **Lưu khách hàng** khi xoá trống field (badge lỗi trên tab),
   **Chế độ xem**, nhập SĐT `0900000000` rồi lưu để thử lỗi validate từ server.
+
+**Hồ sơ vay** (mô hình 4 mắt: chuyên viên lập, trưởng phòng duyệt — đổi vai trò ở thanh trên):
+- Vai trò **Chuyên viên** → **Lập hồ sơ vay**: wizard 3 bước, bấm Tiếp tục khi chưa nhập để thấy
+  chặn bước; gõ "An" ở ô Khách hàng; chọn Nhóm SP → Sản phẩm → Gói vay rồi đổi Nhóm SP (cấp dưới
+  tự xoá kèm lãi suất); đính kèm tệp (thử > 2 tệp CCCD, tệp `.exe`, tên chứa `loi`).
+  Đang nhập dở thì F5 → khôi phục bản nháp.
+- **HS260001** (Trả lại bổ sung): chuyên viên sửa, **Gửi duyệt** lại.
+- **HS260002** (Chờ duyệt): vai trò **Trưởng phòng** → Duyệt / Trả lại (bắt buộc ý kiến) / Từ chối.
 
 Tab **Phương án vay** (322 field) là bài thử tải: ẩn/hiện theo mục đích vay, nhóm lặp cố định
 (5 tài sản bảo đảm, 4 người có thu nhập), bảng 12 tháng có cột tính, 70 field tính toán phụ thuộc
@@ -41,17 +52,21 @@ chéo giữa các section (trả nợ hằng kỳ → DSCR, DTI, thặng dư, ch
 
 ```
 src/app/
-├── core/                         # TOÀN APP: AppStore (người dùng, quyền), MasterDataService (danh mục)
+├── core/                         # TOÀN APP: AppStore (người dùng, quyền), MasterDataService (danh mục),
+│                                 # authInterceptor, FileStorageService (cách tải tệp dùng chung)
 ├── mock/                         # backend giả (bỏ khi có API)
-├── shared/data/                  # BASE dữ liệu: withPagedList, withDetail, withSelection,
-│                                 # apiErrorInterceptor, <app-data-table>, query params ↔ URL
+├── shared/data/                  # BASE dữ liệu: withPagedList, withDetail, withSelection, withWorkflow,
+│                                 # defineWorkflow, apiErrorInterceptor, query params ↔ URL,
+│                                 # ui/: <app-data-table>, <app-workflow-actions>, <app-workflow-history>
 ├── shared/dynamic-form/          # BASE form — chỉ người phụ trách base sửa
 │   ├── index.ts                  # public API: feature chỉ import từ đây
 │   ├── dynamic-form.config.ts    # ĐĂNG KÝ tập trung type / wrapper / validator / message
 │   ├── builder/field-builder.ts  # fieldsFor<T>(): bộ hàm khai báo field (kiểm tra key khi compile)
-│   ├── form/app-form.component.ts# <app-form>: submit, focus field lỗi, lỗi server, chế độ xem
-│   ├── types/                    # input, textarea, number/money, date, select, radio, checkbox,
-│   │                             # tabs (lazy + render theo lô), table (bảng lặp), component (lối thoát)
+│   ├── form/app-form.component.ts# <app-form>: submit, focus field lỗi, lỗi server, chế độ xem,
+│   │                             # nút wizard, lưu nháp (form-draft.ts)
+│   ├── types/                    # input, textarea, number/money, date, select, lookup, radio, checkbox,
+│   │                             # files, tabs (lazy + render theo lô), steps (wizard),
+│   │                             # table (bảng lặp), component (lối thoát)
 │   ├── wrappers/                 # form-field (label, *, tooltip, lỗi), cell (ô bảng), section
 │   ├── validation/               # validator dùng chung (vnPhone, cccd, taxCode, email, lte, dateAfter) + message
 │   ├── guards/                   # cảnh báo rời trang khi chưa lưu
@@ -65,6 +80,12 @@ src/app/
     ├── form/tab-*.ts             # mỗi tab một file
     ├── form/plan/                # tab lớn tách theo section; plan.calc.ts = công thức (hàm thuần)
     └── form/customer.form.spec.ts
+└── features/loan/                # CHỨC NĂNG THỨ HAI — kiểm chứng base dùng lại được
+    ├── loan.model.ts             # DTO + LOAN_WORKFLOW (trạng thái, thao tác, quyền)
+    ├── loan.api.ts               # hồ sơ, chuyển trạng thái, tìm khách hàng, danh mục sản phẩm
+    ├── list/                     # danh sách + store (cùng khối withPagedList như khách hàng)
+    ├── edit/                     # trang lập / sửa / xử lý + store (withDetail + withWorkflow)
+    └── form/                     # loan.form.ts (wizard 3 bước), loan.calc.ts + test
 ```
 
 ## Viết một form
@@ -94,6 +115,40 @@ Tuỳ chọn chung của mọi field: `col` (1–12, mặc định 4), `required
 `disabledIf`, `validators`, `check` (quy tắc riêng của field), `messages` (đổi message cho field
 này), `readonly`, `resets`, `revalidates`, `onChange`, `tooltip`, `description`,
 `extra` (lối thoát: cấu hình Formly gốc).
+
+```ts
+// Wizard: nút Quay lại / Tiếp tục ở thanh nút của form. stepMode của <app-form>:
+// 'linear' (tạo mới: bước hiện tại phải hợp lệ mới đi tiếp, Lưu ở bước cuối) | 'free' (sửa: đi tự do).
+f.steps(f.step('Khách hàng', [...]), f.step('Khoản vay', [...]), f.step('Hồ sơ đính kèm', [...])),
+
+// Chọn từ danh sách lớn trên server; lấy thêm thông tin của lựa chọn qua ctx.option.data
+f.lookup('customerId', 'Khách hàng', {
+  search: (q) => api.findCustomers(q),     // Observable<SelectOption[]> (label, description, data)
+  labelKey: 'customerName',                // nhãn khi mở hồ sơ cũ, không phải gọi API
+  onChange: ({ option, set }) => set('customerPhone', (option?.data as CustomerHit)?.phone ?? null),
+}),
+
+// Chuỗi phụ thuộc nhiều cấp: người dùng đổi cấp trên → cấp dưới TỰ xoá (không cần resets),
+// onChange của cấp dưới chạy với option = null → giá trị suy ra từ nó (lãi suất) cũng xoá theo.
+f.select('productId', 'Sản phẩm', { dependsOn: 'categoryId', loadOptions: (id) => api.products(id) }),
+f.select('packageId', 'Gói vay', {
+  dependsOn: 'productId', loadOptions: (id) => api.packages(id),
+  onChange: ({ option, set }) => set('rate', (option?.data as LoanPackage)?.rate ?? null),
+}),
+
+// Đính kèm: giá trị = FileRef[]; tải ngay qua DF_FILE_STORAGE (ứng dụng cấu hình một lần ở app.config).
+// required = ít nhất 1 tệp; đang tải dở thì không submit được.
+f.files('idDocs', 'CCCD', { required: true, accept: '.pdf,image/*', maxFiles: 2, maxSizeMb: 5 }),
+```
+
+```html
+<!-- Lưu nháp trên trình duyệt khi đang nhập; mở lại → đề nghị khôi phục. Xoá khi lưu thành công. -->
+<app-form [fields]="fields" [model]="model()" [stepMode]="id() ? 'free' : 'linear'"
+          [draftKey]="'loan:' + (id() ?? 'new')" (submitted)="save($event)" />
+```
+
+> Bản nháp nằm trong `localStorage` tới khi lưu thành công hoặc người dùng bỏ. Dữ liệu nhạy cảm /
+> máy dùng chung: không truyền `draftKey`, hoặc gọi `clearAllDrafts()` khi đăng xuất.
 
 ```ts
 // Field tính toán: tự tính lại khi model đổi, ghi vào cả model lẫn control (có trong dữ liệu submit),
@@ -135,7 +190,7 @@ f.table<MonthRow>('months', (c) => [c.money('revenue', 'Doanh thu'), c.calc('net
 |---|---|---|
 | Reset / gán giá trị khi người dùng đổi | `resets` / `onChange` của **field nguồn** | Chỉ chạy khi người dùng thao tác, không chạy khi nạp dữ liệu sửa |
 | Ẩn/hiện, required, disabled theo điều kiện | `hideIf` / `requiredIf` / `disabledIf` | Formly tính ở cấp form, không phụ thuộc field có đang render hay không |
-| Tải options theo field cha | `dependsOn` + `loadOptions` của **field đích** | Chỉ gọi API khi field hiển thị |
+| Tải options theo field cha | `dependsOn` + `loadOptions` của **field đích** | Chỉ gọi API khi field hiển thị; cha đổi (do người dùng) → tự xoá theo chuỗi |
 | So sánh chéo | validator `lte` / `dateAfter` + `revalidates` ở field kia | |
 
 ## Dữ liệu & state
@@ -181,6 +236,35 @@ export class CustomerListPage { readonly store = inject(CustomerListStore); }
 Màn hình sửa: `withDetail({ load, save })` → `store.load(id)`, `await store.save(value)` (ném
 `ApiError`; lỗi 400 có `fieldErrors` → `form.setServerErrors(...)`). Xem `features/customer/edit/`.
 
+### Quy trình xử lý (trạng thái + duyệt)
+
+```ts
+// Khai báo MỘT LẦN cạnh model — dùng cho tag trạng thái, nút thao tác, khoá form, kiểm tra ở server giả.
+export const LOAN_WORKFLOW = defineWorkflow<LoanStatus, LoanAction, Permission>({
+  states: { DRAFT: { label: 'Nháp', editable: true }, SUBMITTED: { label: 'Chờ duyệt', severity: 'info' }, … },
+  actions: {
+    submit: { label: 'Gửi duyệt', from: ['DRAFT', 'RETURNED'], to: 'SUBMITTED', permission: 'loan.edit', requiresValidForm: true },
+    return: { label: 'Trả lại bổ sung', from: ['SUBMITTED'], to: 'RETURNED', permission: 'loan.approve', comment: 'required' },
+    …
+  },
+});
+
+export const LoanDetailStore = signalStore(
+  withDetail({ load, save }),
+  withWorkflow({ transition: () => { const api = inject(LoanApi); return (id, a, c) => api.transition(id, a, c); } }),
+);                                          // + acting, act(action, comment) (ném ApiError như save)
+```
+
+```html
+<app-workflow-actions [workflow]="LOAN_WORKFLOW" [status]="store.entity()?.status" [can]="can"
+                      [busy]="store.acting()" (act)="onAct($event)" />   <!-- hộp thoại ý kiến / xác nhận có sẵn -->
+<app-workflow-history [workflow]="LOAN_WORKFLOW" [events]="store.entity()?.history" />
+<app-data-table … />  <!-- cột trạng thái: { format: 'tag', labels: LOAN_WORKFLOW.states } -->
+```
+
+Khai báo phía client chỉ để **hiển thị đúng**; server vẫn kiểm tra quyền, trạng thái và dữ liệu
+(server giả trả 403 / 409 / 400 tương ứng).
+
 ### Lỗi API
 
 `apiErrorInterceptor` chuyển mọi lỗi thành `ApiError { status, message, fieldErrors? }` và hiện toast
@@ -209,6 +293,24 @@ Store tự giữ `error` → màn hình chỉ hiện `store.error()` + nút "Th�
 - `withPagedList` huỷ request cũ khi có truy vấn mới (`switchMap`) → kết quả cũ về muộn không ghi đè.
 - Store của màn hình bị huỷ khi rời trang → quay lại danh sách là tải mới, không cần cơ chế
   "invalidate" cache sau khi lưu.
+
+### Chức năng thứ hai (Hồ sơ vay) cần thêm gì vào base
+
+Làm chức năng thứ hai để biết base còn thiếu gì. Phần thêm vào `shared/` (dùng được cho mọi màn hình):
+
+| Thêm | Vì sao |
+|---|---|
+| `f.steps` / `f.step`, `stepMode`, nút wizard trong `<app-form>` | Form tạo mới theo bước |
+| `f.lookup` | Danh sách khách hàng quá lớn để tải hết vào select |
+| `SelectOption.data` + `ctx.option` trong `onChange` | Lấy lãi suất / hạn mức của gói vay đã chọn |
+| `dependsOn` tự xoá theo chuỗi | Trước đây phải tự khai báo `resets` ở từng cấp, dễ sót cấp thứ 3 |
+| `f.files` + `DF_FILE_STORAGE` | Đính kèm tệp, một cách tải cho cả app |
+| `draftKey` (lưu nháp) | Form dài, nhập dở dễ mất |
+| `form.validate()`, `form.value()` | Thao tác ngoài nút Lưu (Gửi duyệt) cần kiểm tra form |
+| `defineWorkflow`, `withWorkflow`, `<app-workflow-actions>`, `<app-workflow-history>` | Trạng thái + duyệt |
+
+Không phải sửa gì ở `withPagedList`, `withDetail`, `<app-data-table>`, `apiErrorInterceptor`,
+cách làm danh sách / bộ lọc / URL: màn hình danh sách hồ sơ vay chỉ là khai báo cột + bộ lọc.
 
 ## Những điều đã kiểm chứng trong mã nguồn Formly (quan trọng)
 

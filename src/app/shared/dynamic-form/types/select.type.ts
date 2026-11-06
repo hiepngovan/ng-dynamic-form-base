@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Select } from 'primeng/select';
 import { DfFieldType } from '../core/df-field-type';
-import { labelOf, OptionsPipe } from '../core/options.pipe';
+import { labelOf, optionOf, OptionsPipe } from '../core/options.pipe';
 import { SelectProps } from '../core/props';
 
 /**
@@ -34,11 +34,12 @@ import { SelectProps } from '../core/props';
         appendTo="body"
         [invalid]="showError"
         [fluid]="true"
-        (onChange)="emitChange($event)"
+        (onChange)="emitChange({ option: optionOf(opts, $event.value) })"
       />
     }
   `,
 })
 export class SelectType extends DfFieldType<SelectProps> {
   protected readonly labelOf = labelOf;
+  protected readonly optionOf = optionOf;
 }

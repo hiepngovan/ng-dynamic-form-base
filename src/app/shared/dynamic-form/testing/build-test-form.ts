@@ -2,6 +2,8 @@ import { Component, inject, Injector, ViewContainerRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { UntypedFormGroup } from '@angular/forms';
 import { FormlyFieldConfig, FormlyFormBuilder, FormlyFormOptions } from '@ngx-formly/core';
+import { notifyUserChange } from '../core/field-utils';
+import { SelectOption } from '../core/props';
 
 /**
  * Dựng form từ cấu hình mà KHÔNG render UI → test nhanh logic ẩn/hiện, validation, onChange.
@@ -60,13 +62,16 @@ export function buildTestForm<T extends object>(
     value(path: string): unknown {
       return form.get(path)?.value;
     },
-    /** Mô phỏng người dùng đổi giá trị trên UI: gán giá trị + gọi props.change như type thật. */
-    userChange(key: string, value: unknown) {
+    /**
+     * Mô phỏng người dùng đổi giá trị trên UI, giống type thật: gán giá trị, xoá field phụ thuộc,
+     * chạy onChange. `option`: lựa chọn kèm data (select / lookup), vd { value, label, data }.
+     */
+    userChange(key: string, value: unknown, option?: SelectOption | null) {
       const field = find(key);
       if (!field) throw new Error(`Không tìm thấy field ${key}`);
       field.formControl?.setValue(value);
       (field.model as Record<string, unknown>)[key] = value;
-      field.props?.change?.(field, undefined);
+      notifyUserChange(field, option === undefined ? undefined : { option });
       options.checkExpressions?.(root);
     },
   };

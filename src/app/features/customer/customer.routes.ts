@@ -1,7 +1,11 @@
 import { inject } from '@angular/core';
-import { Routes } from '@angular/router';
+import { Router, Routes } from '@angular/router';
 import { AppStore } from '../../core/app.store';
 import { unsavedChangesGuard } from '../../shared/dynamic-form';
+
+/** Không đủ quyền → về danh sách (thay vì trang trắng khi mở thẳng URL / F5). */
+const canCreate = () =>
+  inject(AppStore).can('customer.edit') || inject(Router).createUrlTree(['/customers']);
 
 const editPage = () => import('./edit/customer-edit.page').then((m) => m.CustomerEditPage);
 
@@ -20,7 +24,7 @@ export const CUSTOMER_ROUTES: Routes = [
     path: 'new',
     title: 'Khách hàng mới',
     loadComponent: editPage,
-    canActivate: [() => inject(AppStore).can('customer.edit')],
+    canActivate: [canCreate],
     canDeactivate: [unsavedChangesGuard],
   },
   {

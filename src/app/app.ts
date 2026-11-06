@@ -15,6 +15,7 @@ import { AppStore, ROLE_OPTIONS, Role } from './core/app.store';
         <span class="app-topbar__brand">Dynamic Form Base</span>
         <nav>
           <a routerLink="/customers" routerLinkActive="active">Khách hàng</a>
+          <a routerLink="/loans" routerLinkActive="active">Hồ sơ vay</a>
         </nav>
         <span class="app-topbar__spacer"></span>
         <span class="muted">{{ app.user().name }}</span>

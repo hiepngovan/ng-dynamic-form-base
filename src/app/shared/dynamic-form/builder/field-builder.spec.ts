@@ -1,5 +1,6 @@
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { FormlyFieldConfig } from '@ngx-formly/core';
+import { of } from 'rxjs';
 import { fieldsFor } from './field-builder';
 
 interface M {
@@ -55,5 +56,33 @@ describe('FieldBuilder', () => {
     expect(run(15, { a: 10 })).toBe(false);
     expect(run(15, undefined)).toBe(false);
     expect(rule.message).toBe('B ≤ A');
+  });
+});
+
+describe('FieldBuilder — danh sách phụ thuộc', () => {
+  interface C {
+    a?: string | null;
+    b?: string | null;
+    c?: string | null;
+    picked?: string | null;
+  }
+
+  it('dependsOn được ghi vào props (để base tìm field phụ thuộc)', () => {
+    const f = fieldsFor<C>();
+    const b = f.select('b', 'B', { dependsOn: 'a', loadOptions: () => of([]) });
+    expect(b.props?.['dependsOn']).toBe('a');
+  });
+
+  it('onChange nhận lựa chọn (ctx.option) kèm data', () => {
+    const f = fieldsFor<C>();
+    let got: unknown;
+    const field = f.select('a', 'A', { onChange: ({ option }) => (got = option?.data) });
+    // Field như sau khi Formly dựng: có model + form của nhóm.
+    const built = Object.assign(field, {
+      model: {},
+      form: new FormGroup({ a: new FormControl() }),
+    });
+    built.props?.change?.(built, { option: { value: 1, label: 'x', data: { rate: 5 } } });
+    expect(got).toEqual({ rate: 5 });
   });
 });

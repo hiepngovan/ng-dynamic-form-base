@@ -10,6 +10,13 @@ export class OptionsPipe implements PipeTransform {
   }
 }
 
+export function optionOf(
+  options: SelectOption[] | null | undefined,
+  value: unknown,
+): SelectOption | null {
+  return options?.find((o) => o.value === value) ?? null;
+}
+
 export function labelOf(options: SelectOption[] | null | undefined, value: unknown): string {
-  return options?.find((o) => o.value === value)?.label ?? '';
+  return optionOf(options, value)?.label ?? '';
 }

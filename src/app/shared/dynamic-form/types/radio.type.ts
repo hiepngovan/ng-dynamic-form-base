@@ -23,7 +23,7 @@ import { SelectProps } from '../core/props';
               [value]="o.value"
               [inputId]="id + '_' + i"
               [invalid]="showError"
-              (onClick)="emitChange($event)"
+              (onClick)="emitChange({ option: o })"
             />
             <label [for]="id + '_' + i">{{ o.label }}</label>
           </span>

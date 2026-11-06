@@ -7,10 +7,13 @@ import { SectionWrapper } from './wrappers/section.wrapper';
 import { CheckboxType } from './types/checkbox.type';
 import { ComponentType } from './types/component.type';
 import { DateType } from './types/date.type';
+import { FileType } from './types/file.type';
+import { LookupType } from './types/lookup.type';
 import { InputType } from './types/input.type';
 import { NumberType } from './types/number.type';
 import { RadioType } from './types/radio.type';
 import { SelectType } from './types/select.type';
+import { StepsType } from './types/steps.type';
 import { TableType } from './types/table.type';
 import { TabsType } from './types/tabs.type';
 import { TextareaType } from './types/textarea.type';
@@ -32,9 +35,12 @@ export const DYNAMIC_FORM_CONFIG: ConfigOption = {
     },
     { name: 'date', component: DateType, wrappers: ['form-field'] },
     { name: 'select', component: SelectType, wrappers: ['form-field'] },
+    { name: 'lookup', component: LookupType, wrappers: ['form-field'] },
     { name: 'radio', component: RadioType, wrappers: ['form-field'] },
     { name: 'checkbox', component: CheckboxType, wrappers: ['form-field'] },
+    { name: 'files', component: FileType, wrappers: ['form-field'] },
     { name: 'tabs', component: TabsType },
+    { name: 'steps', component: StepsType },
     { name: 'table', component: TableType },
     { name: 'component', component: ComponentType },
   ],

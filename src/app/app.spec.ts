@@ -5,12 +5,13 @@ import { App } from './app';
 import { AppStore } from './core/app.store';
 
 describe('App', () => {
-  beforeEach(() =>
+  beforeEach(() => {
+    localStorage.clear(); // vai trò giả được nhớ qua F5 → mỗi test bắt đầu từ mặc định
     TestBed.configureTestingModule({
       imports: [App],
       providers: [provideRouter([]), MessageService],
-    }),
-  );
+    });
+  });
 
   it('khởi tạo được app shell', () => {
     const fixture = TestBed.createComponent(App);
