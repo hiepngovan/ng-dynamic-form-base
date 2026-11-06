@@ -4,158 +4,26 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
 import { Observable, of } from 'rxjs';
 import { distinctUntilChanged, startWith, switchMap } from 'rxjs/operators';
 import { isEmpty, isHiddenField, rootOf, setSiblingValue } from '../field-utils';
-import { OptionsSource, SelectOption } from '../props';
-import { CompareFieldOptions, ValidatorName } from '../validation/validators';
+import { SelectOption } from '../props';
+import {
+  CalcFormat,
+  CalcOptions,
+  CheckRule,
+  FieldOptions,
+  FileOptions,
+  Key,
+  LayoutOptions,
+  LookupOptions,
+  NumberOptions,
+  SelectOptions,
+  TableOptions,
+  TextareaOptions,
+  TextOptions,
+  ValidatorRef,
+} from './field-options';
 
 type FieldExpressions = NonNullable<FormlyFieldConfig['expressions']>;
 type FieldValidators = NonNullable<FormlyFieldConfig['validators']>;
-
-/** Key hợp lệ của model T — gõ sai tên field sẽ báo lỗi khi compile. */
-export type Key<T> = Extract<keyof T, string>;
-export type ColSpan = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
-export type ValidatorRef = ValidatorName | { name: ValidatorName; options: CompareFieldOptions };
-
-/**
- * Quy tắc kiểm tra riêng của một field (không cần đăng ký validator dùng chung).
- * `test` trả về true = hợp lệ. Bỏ qua khi field rỗng (kết hợp `required` nếu cần bắt buộc).
- * Phụ thuộc field khác → khai báo `revalidates` ở field kia để kiểm tra lại khi nó đổi.
- */
-export interface CheckRule<T> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- kiểu giá trị tuỳ field (số, ngày, chuỗi)
-  test: (value: any, model: T) => boolean;
-  message: string;
-}
-
-export interface ChangeContext<T> {
-  /** Giá trị mới của field vừa đổi */
-  value: unknown;
-  /** Model của nhóm chứa field */
-  model: T;
-  field: FormlyFieldConfig;
-  form: AbstractControl;
-  /** Gán giá trị cho field khác cùng nhóm (cập nhật cả control lẫn model). */
-  set: (key: Key<T>, value: unknown) => void;
-  /**
-   * select / radio / lookup: lựa chọn vừa chọn, kèm `data` (vd lãi suất của gói vay).
-   * null = vừa xoá lựa chọn (người dùng bấm xoá, hoặc field cha đổi nên field này bị xoá theo).
-   */
-  option?: SelectOption | null;
-}
-
-export interface FieldOptions<T> {
-  /** Độ rộng trên lưới 12 cột. Mặc định 4 (3 field / hàng). */
-  col?: ColSpan;
-  placeholder?: string;
-  /** Gợi ý hiển thị dưới field */
-  description?: string;
-  tooltip?: string;
-  required?: boolean;
-  disabled?: boolean;
-  defaultValue?: unknown;
-  minLength?: number;
-  maxLength?: number;
-  min?: number;
-  max?: number;
-  pattern?: string | RegExp;
-  validators?: ValidatorRef[];
-  /** Quy tắc kiểm tra riêng của field này, xem CheckRule. */
-  check?: CheckRule<T> | CheckRule<T>[];
-  /** Thay message mặc định cho field này, vd { min: 'Tỷ lệ bảo đảm phải từ 100% trở lên' }. */
-  messages?: Record<string, string>;
-  /** Chỉ hiển thị, không cho nhập. */
-  readonly?: boolean;
-
-  /** Bắt buộc theo điều kiện */
-  requiredIf?: (model: T) => boolean;
-  /** Ẩn theo điều kiện. Field ẩn: không validate, giá trị bị xoá. */
-  hideIf?: (model: T) => boolean;
-  /** Khoá theo điều kiện */
-  disabledIf?: (model: T) => boolean;
-
-  /** NGƯỜI DÙNG đổi field này → xoá giá trị các field sau. Ví dụ: Tỉnh → xoá Phường/Xã. */
-  resets?: Key<T>[];
-  /** NGƯỜI DÙNG đổi field này → validate lại các field sau. Ví dụ: Hạn mức → validate lại Đặt cọc. */
-  revalidates?: Key<T>[];
-  /** Xử lý khi NGƯỜI DÙNG đổi giá trị. Không chạy khi nạp dữ liệu, nên an toàn cho màn hình sửa. */
-  onChange?: (ctx: ChangeContext<T>) => void;
-
-  /** LỐI THOÁT: cấu hình Formly gốc, merge đè lên kết quả của builder. */
-  extra?: Partial<FormlyFieldConfig>;
-}
-
-export interface TextOptions<T> extends FieldOptions<T> {
-  inputType?: 'text' | 'password' | 'email' | 'tel' | 'url';
-}
-
-export interface TextareaOptions<T> extends FieldOptions<T> {
-  rows?: number;
-}
-
-export interface NumberOptions<T> extends FieldOptions<T> {
-  suffix?: string;
-  minFractionDigits?: number;
-  maxFractionDigits?: number;
-}
-
-export interface SelectOptions<T> extends FieldOptions<T> {
-  options?: OptionsSource;
-  filter?: boolean;
-  /**
-   * Danh sách phụ thuộc field cha: tải lại khi cha đổi, khoá khi cha rỗng. Dùng kèm loadOptions.
-   * Người dùng đổi field cha → field này TỰ bị xoá (theo chuỗi nhiều cấp), không cần khai báo resets.
-   */
-  dependsOn?: Key<T>;
-  loadOptions?: (parentValue: unknown) => Observable<SelectOption[]>;
-}
-
-export interface LookupOptions<T> extends FieldOptions<T> {
-  /** Tìm trên server theo từ khoá. Dùng cho danh sách lớn (khách hàng, nhân viên...). */
-  search: (query: string) => Observable<SelectOption[]>;
-  /**
-   * Key trong model giữ sẵn nhãn (vd 'customerName' do server trả kèm) → mở bản ghi cũ không phải
-   * gọi resolve. Không bắt buộc là một field của form.
-   */
-  labelKey?: Key<T>;
-  /** Lấy nhãn theo giá trị khi mở bản ghi cũ (khi không có labelKey). */
-  resolve?: (value: unknown) => Observable<SelectOption | null>;
-  /** Số ký tự tối thiểu trước khi tìm. Mặc định 2. */
-  minQueryLength?: number;
-}
-
-export interface FileOptions<T> extends FieldOptions<T> {
-  /** Định dạng cho phép: '.pdf,image/*' */
-  accept?: string;
-  /** Dung lượng tối đa mỗi tệp (MB). Mặc định 10. */
-  maxSizeMb?: number;
-  /** Số tệp tối đa. Mặc định 10. */
-  maxFiles?: number;
-}
-
-export interface LayoutOptions<T> {
-  col?: ColSpan;
-  hideIf?: (model: T) => boolean;
-}
-
-export interface TableOptions<T, R> extends LayoutOptions<T> {
-  /**
-   * Bảng cố định số dòng (vd 12 tháng): tạo sẵn các dòng này, ẩn nút thêm / xoá.
-   * Mỗi lần dựng (hoặc hiện lại sau khi ẩn) dùng một bản sao mới.
-   */
-  fixedRows?: Partial<R>[];
-}
-
-export type CalcFormat = 'money' | 'number' | 'percent' | 'date' | 'text';
-
-export interface CalcOptions<T> extends Pick<
-  FieldOptions<T>,
-  'col' | 'description' | 'tooltip' | 'min' | 'max' | 'check' | 'messages' | 'hideIf' | 'extra'
-> {
-  /** Kiểu hiển thị kết quả. Mặc định 'money' (làm tròn đến đồng). */
-  format?: CalcFormat;
-  suffix?: string;
-  /** Số chữ số thập phân khi làm tròn (number / percent). Mặc định 2. */
-  digits?: number;
-}
 
 /**
  * Bộ hàm khai báo field. Dev nghiệp vụ chỉ dùng class này, không viết FormlyFieldConfig tay.
@@ -346,9 +214,7 @@ export class FieldBuilder<T> {
       fieldGroupClassName: 'df-grid',
       props: { label: title },
       fieldGroup: fields,
-      ...(o.hideIf
-        ? { expressions: { hide: (f: FormlyFieldConfig) => o.hideIf!(modelOf<T>(f)) } }
-        : {}),
+      ...hideWhen(o.hideIf),
     };
   }
 
@@ -405,9 +271,7 @@ export class FieldBuilder<T> {
       className: `df-col-${o.col ?? 12}`,
       props: { fixed: !!fixedRows },
       fieldArray: { fieldGroup: cols },
-      ...(o.hideIf
-        ? { expressions: { hide: (f: FormlyFieldConfig) => o.hideIf!(modelOf<T>(f)) } }
-        : {}),
+      ...hideWhen(o.hideIf),
     };
     // Getter: mỗi lần Formly lấy giá trị mặc định là một mảng mới (tránh dùng chung object dòng).
     Object.defineProperty(field, 'defaultValue', {
@@ -424,9 +288,7 @@ export class FieldBuilder<T> {
       type: 'component',
       className: `df-col-${o.col ?? 12}`,
       props: { component },
-      ...(o.hideIf
-        ? { expressions: { hide: (f: FormlyFieldConfig) => o.hideIf!(modelOf<T>(f)) } }
-        : {}),
+      ...hideWhen(o.hideIf),
     };
   }
 
@@ -434,7 +296,7 @@ export class FieldBuilder<T> {
 
   private make(
     type: string,
-    key: string,
+    key: Key<T>,
     label: string,
     o: FieldOptions<T>,
     typeProps: Record<string, unknown> = {},
@@ -455,12 +317,11 @@ export class FieldBuilder<T> {
       ...props
     } = o;
 
-    const expressions: FieldExpressions = {};
-    if (hideIf) expressions.hide = (f) => hideIf(modelOf<T>(f));
+    const expressions: FieldExpressions = { ...hideWhen(hideIf).expressions };
     if (requiredIf) expressions['props.required'] = (f) => requiredIf(modelOf<T>(f));
     if (disabledIf) expressions['props.disabled'] = (f) => disabledIf(modelOf<T>(f));
 
-    const change = buildChangeHandler<T>(resets, revalidates, onChange);
+    const change = buildChangeHandler<T>({ resets, revalidates, onChange });
     const field: FormlyFieldConfig = {
       key,
       type,
@@ -485,11 +346,19 @@ export const fieldsFor = <T>() => new FieldBuilder<T>();
  */
 const modelOf = <M>(f: FormlyFieldConfig): M => (f.model ?? {}) as M;
 
-function buildChangeHandler<T>(
-  resets: Key<T>[] | undefined,
-  revalidates: Key<T>[] | undefined,
-  onChange: FieldOptions<T>['onChange'],
-) {
+/** Ẩn theo điều kiện trên model của nhóm. Không có điều kiện → không thêm expression nào. */
+function hideWhen<T>(
+  hideIf: ((model: T) => boolean) | undefined,
+): Pick<FormlyFieldConfig, 'expressions'> {
+  return hideIf ? { expressions: { hide: (f: FormlyFieldConfig) => hideIf(modelOf<T>(f)) } } : {};
+}
+
+/** Hai danh sách key cùng kiểu → truyền theo tên, đảo chỗ nhau không biên dịch lặng lẽ được. */
+function buildChangeHandler<T>({
+  resets,
+  revalidates,
+  onChange,
+}: Pick<FieldOptions<T>, 'resets' | 'revalidates' | 'onChange'>) {
   if (!resets?.length && !revalidates?.length && !onChange) return undefined;
   return (field: FormlyFieldConfig, event?: unknown) => {
     const form = field.form!;

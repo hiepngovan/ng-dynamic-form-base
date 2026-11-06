@@ -55,7 +55,8 @@ chéo giữa các section (trả nợ hằng kỳ → DSCR, DTI, thặng dư, ch
 ```
 src/app/
 ├── core/                         # TOÀN APP: AppStore (người dùng, quyền), MasterDataService (danh mục),
-│                                 # authInterceptor, FileStorageService (cách tải tệp dùng chung)
+│                                 # authInterceptor, FileStorageService (cách tải tệp dùng chung),
+│                                 # injectBackToList (quay lại danh sách, giữ bộ lọc)
 ├── mock/                         # backend giả (bỏ khi có API): mock-api.ts (định tuyến),
 │                                 # customer-db.ts, loan-db.ts (dữ liệu mẫu)
 ├── shared/data/                  # BASE dữ liệu: withPagedList, withDetail, withSelection,
@@ -68,6 +69,7 @@ src/app/
 │   ├── dynamic-form.config.ts    # ĐĂNG KÝ tập trung type / wrapper / validator / message
 │   ├── props.ts                  # props của từng loại field (hợp đồng builder ↔ types)
 │   ├── field-utils.ts            # thao tác trên cây field (đếm lỗi, chuỗi thay đổi, field ẩn...)
+│   ├── builder/field-options.ts  # tuỳ chọn của từng loại field (hợp đồng dev nghiệp vụ dùng)
 │   ├── builder/field-builder.ts  # fieldsFor<T>(): bộ hàm khai báo field (kiểm tra key khi compile)
 │   ├── form/                     # <app-form>: submit, focus field lỗi, lỗi server, chế độ xem,
 │   │                             # nút wizard, lưu nháp, FormEvents (kênh form ↔ tabs/steps/table),

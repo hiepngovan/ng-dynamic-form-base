@@ -1,4 +1,3 @@
-import { Location } from '@angular/common';
 import {
   Component,
   computed,
@@ -15,6 +14,7 @@ import { Button } from 'primeng/button';
 import { Message } from 'primeng/message';
 import { ProgressBar } from 'primeng/progressbar';
 import { Tag } from 'primeng/tag';
+import { injectBackToList } from '../../../core/back-to-list';
 import { AppStore } from '../../../core/app.store';
 import { MasterDataService } from '../../../core/master-data.service';
 import { ApiError } from '../../../shared/data';
@@ -94,8 +94,9 @@ export class CustomerEditPage implements HasUnsavedChanges {
   protected readonly app = inject(AppStore);
   private readonly toast = inject(MessageService);
   private readonly router = inject(Router);
-  private readonly location = inject(Location);
   private readonly formRef = viewChild(AppFormComponent);
+  /** Link "← Danh sách" và nút Huỷ. */
+  readonly back = injectBackToList('/customers');
 
   /** Tạo cấu hình MỘT LẦN (không gọi hàm build trong template). */
   readonly fields = buildCustomerForm(inject(MasterDataService));
@@ -145,16 +146,6 @@ export class CustomerEditPage implements HasUnsavedChanges {
         });
       }
       // Lỗi khác (mạng, 5xx…): interceptor đã hiện thông báo.
-    }
-  }
-
-  /** Quay lại danh sách, giữ nguyên trang / bộ lọc nếu vừa đi từ danh sách sang. */
-  back(event?: Event): void {
-    if (this.router.lastSuccessfulNavigation()?.previousNavigation) {
-      event?.preventDefault();
-      this.location.back();
-    } else if (!event) {
-      void this.router.navigate(['/customers']);
     }
   }
 }

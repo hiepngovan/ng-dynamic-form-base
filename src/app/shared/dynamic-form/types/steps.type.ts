@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FieldType, FormlyField } from '@ngx-formly/core';
-import { countErrors, markTouched } from '../field-utils';
+import { countAllErrors, countShownErrors, markTouched } from '../field-utils';
 import { focusFirstError } from '../form/focus-error';
 import { FormEvents } from '../form/form-events';
 
@@ -93,9 +93,9 @@ export class StepsType extends FieldType implements OnInit {
   readonly state = computed(() => {
     this.tick();
     return (this.field.fieldGroup ?? []).map((step, i) =>
-      countErrors(step) > 0
+      countShownErrors(step) > 0
         ? 'error'
-        : i < this.reached() && i !== this.active() && countErrors(step, true) === 0
+        : i < this.reached() && i !== this.active() && countAllErrors(step) === 0
           ? 'done'
           : 'todo',
     );
@@ -121,7 +121,7 @@ export class StepsType extends FieldType implements OnInit {
 
     this.events.submitFailed$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.refresh();
-      const first = this.steps().findIndex((s) => countErrors(s, true) > 0);
+      const first = this.steps().findIndex((s) => countAllErrors(s) > 0);
       if (first >= 0) this.show(first);
     });
   }
@@ -139,7 +139,7 @@ export class StepsType extends FieldType implements OnInit {
     }
     for (let i = this.active(); i < target; i++) {
       markTouched(steps[i]);
-      if (countErrors(steps[i], true) > 0) {
+      if (countAllErrors(steps[i]) > 0) {
         this.show(i);
         this.refresh();
         focusFirstError(this.host.nativeElement, this.injector);

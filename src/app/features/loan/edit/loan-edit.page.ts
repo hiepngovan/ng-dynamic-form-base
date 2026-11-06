@@ -1,4 +1,4 @@
-import { DatePipe, Location } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, input, untracked, viewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -6,6 +6,7 @@ import { Button } from 'primeng/button';
 import { Message } from 'primeng/message';
 import { ProgressBar } from 'primeng/progressbar';
 import { Tag } from 'primeng/tag';
+import { injectBackToList } from '../../../core/back-to-list';
 import { AppStore, Permission } from '../../../core/app.store';
 import { MasterDataService } from '../../../core/master-data.service';
 import { ApiError, isApiError } from '../../../shared/data';
@@ -144,8 +145,9 @@ export class LoanEditPage implements HasUnsavedChanges {
   protected readonly workflow = LOAN_WORKFLOW;
   private readonly toast = inject(MessageService);
   private readonly router = inject(Router);
-  private readonly location = inject(Location);
   private readonly formRef = viewChild(AppFormComponent);
+  /** Link "← Danh sách" và nút Huỷ. */
+  readonly back = injectBackToList('/loans');
 
   readonly fields = buildLoanForm(inject(LoanApi), inject(MasterDataService));
 
@@ -217,15 +219,6 @@ export class LoanEditPage implements HasUnsavedChanges {
       this.toast.add({ severity: 'success', summary: `${def.label}: thành công` });
     } catch (e) {
       this.showError(e, `${def.label} không thành công`);
-    }
-  }
-
-  back(event?: Event): void {
-    if (this.router.lastSuccessfulNavigation()?.previousNavigation) {
-      event?.preventDefault();
-      this.location.back();
-    } else if (!event) {
-      void this.router.navigate(['/loans']);
     }
   }
 

@@ -4,16 +4,22 @@ export const isEmpty = (v: unknown): boolean =>
   v === null || v === undefined || v === '' || (Array.isArray(v) && v.length === 0);
 
 /**
- * Đếm số field đang lỗi (chỉ field lá có key, đã touched hoặc luôn hiện lỗi, không bị ẩn).
- * Dùng cho badge lỗi trên tab.
+ * Số field đang HIỆN lỗi trong nhánh: không hợp lệ VÀ (đã touched hoặc luôn hiện lỗi).
+ * Dùng cho badge lỗi trên tab, dấu ⚠ trên bước wizard.
  */
-export function countErrors(field: FormlyFieldConfig, includeUntouched = false): number {
+export const countShownErrors = (field: FormlyFieldConfig): number => countInvalid(field, false);
+
+/** Số field không hợp lệ trong nhánh, kể cả field người dùng chưa chạm tới (để chặn qua bước). */
+export const countAllErrors = (field: FormlyFieldConfig): number => countInvalid(field, true);
+
+/** Chỉ đếm field lá có key, không bị ẩn. Hai hàm trên đặt tên cho cờ `includeUntouched`. */
+function countInvalid(field: FormlyFieldConfig, includeUntouched: boolean): number {
   if (field.hide) return 0;
   const isLeaf = !field.fieldGroup;
   const shown = includeUntouched || field.formControl?.touched || !!field.validation?.show;
   const self = isLeaf && field.key != null && field.formControl?.invalid && shown ? 1 : 0;
   return (field.fieldGroup ?? []).reduce(
-    (sum, child) => sum + countErrors(child, includeUntouched),
+    (sum, child) => sum + countInvalid(child, includeUntouched),
     self,
   );
 }

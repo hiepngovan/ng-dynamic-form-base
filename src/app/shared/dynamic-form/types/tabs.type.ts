@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FieldType, FormlyField } from '@ngx-formly/core';
 import { Badge } from 'primeng/badge';
 import { Tab, TabList, Tabs } from 'primeng/tabs';
-import { countErrors } from '../field-utils';
+import { countShownErrors } from '../field-utils';
 import { FormEvents } from '../form/form-events';
 
 /**
@@ -62,7 +62,7 @@ export class TabsType extends FieldType implements OnInit {
   /** Số lỗi theo từng tab. Tính lại khi form đổi trạng thái, blur, hoặc submit lỗi. */
   readonly errors = computed(() => {
     this.tick();
-    return (this.field.fieldGroup ?? []).map((tab) => countErrors(tab));
+    return (this.field.fieldGroup ?? []).map(countShownErrors);
   });
 
   ngOnInit(): void {

@@ -10,7 +10,7 @@ export type {
   FileOptions,
   Key,
   LookupOptions,
-} from './builder/field-builder';
+} from './builder/field-options';
 export { AppFormComponent } from './form/app-form.component';
 export { unsavedChangesGuard } from './form/unsaved-changes.guard';
 export type { HasUnsavedChanges } from './form/unsaved-changes.guard';
